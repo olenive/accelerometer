@@ -72,7 +72,7 @@ def measurements_by_activity(data: Iterable[Tuple[int, str, int, float, float, f
 
 
 def measurements_by_user_and_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
-                                    ) -> Dict[Tuple[int, str], Tuple[Tuple[int, str, int, float, float, float]]]:
+                                      ) -> Dict[Tuple[int, str], Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create dictionary mapping user id and activity pairs to relevant timepoint data."""
     users = extract_user_set(data)
     activities = extract_activity_set(data)
@@ -100,24 +100,25 @@ def next_valid_timepoint(data: Iterable[Tuple[int, str, int, float, float, float
             return timepoint
 
 
-def split_into_intervals(data: Iterable[Tuple[int, str, int, float, float, float]],
-                         interval_duration_in_nanoseconds: int,
-                         maximum_gap_in_nanoseconds: int,
-                         check_id=True,
-                         check_activity=True,
-                         ) -> Iterable[Tuple[Tuple[int, str, int, float, float, float]]]:
+def split_into_intervals(
+    data: Iterable[Tuple[int, str, int, float, float, float]],
+    interval_duration_in_nanoseconds: int,
+    maximum_gap_in_nanoseconds: int,
+    check_id=True,
+    check_activity=True,
+) -> Iterable[Tuple[Tuple[int, str, int, float, float, float]]]:
     """Extract intervals of fixed duration from a single series of measurements.
 
     Ignore measurements that have all zeros for time and acceleration values.
     """
     if check_id:
         ids = extract_user_set(data)
-        if len(set(ids)) != 1:
-            raise ValueError("Expecting one unique id but found: {}".format(set(ids)))
+        if len(set(ids)) > 1:
+            raise ValueError("Expecting zero or one unique ids but found: {}".format(set(ids)))
     if check_activity:
         activities = extract_activity_set(data)
-        if len(set(activities)) != 1:
-            raise ValueError("Expecting one unique activity but found: {}".format(set(activities)))
+        if len(set(activities)) > 1:
+            raise ValueError("Expecting zero or one unique activities but found: {}".format(set(activities)))
     # noinspection PyTypeChecker
     if len(data) < 2:
         return ()
@@ -148,10 +149,25 @@ def split_into_intervals(data: Iterable[Tuple[int, str, int, float, float, float
             time_in_interval = 0
         else:
             interval.append(measurement)
-        print(interval)
     # Check if final interval should be stored.
     if len(interval) != 0:
         if interval_duration_in_nanoseconds - time_in_interval <= maximum_gap_in_nanoseconds:
-            print("\n C:\n", interval)
             out.append(tuple(interval))
     return tuple(out)
+
+
+def intervals_by_user_and_activity(
+    data: Iterable[Tuple[int, str, int, float, float, float]],
+    interval_duration_in_nanoseconds: int,
+    maximum_gap_in_nanoseconds: int,
+    check_id=True,
+    check_activity=True,
+) -> Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]:
+    """Create a dictionary mapping user id and activity to measurement intervals of specified duration."""
+    out = dict()
+    for key, series in measurements_by_user_and_activity(data).items():
+        print("\nkey ", key)
+        print("series: ", series)
+        out[key] = split_into_intervals(series, interval_duration_in_nanoseconds, maximum_gap_in_nanoseconds,
+                                        check_id=check_id, check_activity=check_activity)
+    return out

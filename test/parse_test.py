@@ -22,7 +22,7 @@ def test_raw_data_string_to_timepoint_strings_returns_expected_list_of_strings()
         '19, Sitting, 131623531465000, 8.88, -1.33, 1.61',
     )
     result = parse.raw_data_string_to_timepoint_strings(sample)
-    assert(result == expected)
+    assert result == expected
 
 
 def test_timepoint_strings_to_timepoint_tuples_returns_expected_tuple_of_tuples():
@@ -37,7 +37,7 @@ def test_timepoint_strings_to_timepoint_tuples_returns_expected_tuple_of_tuples(
         (19, "Sitting", 131623531465000, 8.88, -1.33, 1.61),
     )
     result = parse.timepoint_strings_to_timepoint_tuples(given)
-    assert(result == expected)
+    assert result == expected
 
 
 def test_extract_user_set_returns_expected_set_of_integers():
@@ -53,7 +53,7 @@ def test_extract_user_set_returns_expected_set_of_integers():
     )
     expected = {33, 20, 19}
     result = parse.extract_user_set(given)
-    assert(result == expected)
+    assert result == expected
 
 
 def test_extract_user_set_returns_expected_set_of_strings():
@@ -69,7 +69,7 @@ def test_extract_user_set_returns_expected_set_of_strings():
     )
     expected = {"Jogging", "Walking", "Sitting"}
     result = parse.extract_activity_set(given)
-    assert(result == expected)
+    assert result == expected
 
 
 def test_select_matching_measurements_returns_expected_user_measurements():
@@ -88,7 +88,7 @@ def test_select_matching_measurements_returns_expected_user_measurements():
         (19, 'Sitting', 131623411592000, 9.08, -1.38, 1.69),
         (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
     )
-    assert(result == expected)
+    assert result == expected
 
 
 def test_select_matching_measurements_returns_expected_activity_measurements():
@@ -108,7 +108,7 @@ def test_select_matching_measurements_returns_expected_activity_measurements():
         (33, 'Walking', 49395102310000, 1.1168685, 8.62168, 3.7864566),
         (20, "Walking", 0, 0.0, 0.0, 0.0),
     )
-    assert(result == expected)
+    assert result == expected
 
 
 def test_measurements_by_user_returns_expected_dictionary():
@@ -139,7 +139,7 @@ def test_measurements_by_user_returns_expected_dictionary():
         )
     }
     result = parse.measurements_by_user(given)
-    assert(result == expected)
+    assert result == expected
 
 
 def test_measurements_by_activity_returns_expected_dictionary():
@@ -170,7 +170,7 @@ def test_measurements_by_activity_returns_expected_dictionary():
         )
     }
     result = parse.measurements_by_activity(given)
-    assert(result == expected)
+    assert result == expected
 
 
 def test_measurements_by_user_and_activity_returns_dictionary_of_tuples_to_tuples():
@@ -208,7 +208,7 @@ def test_measurements_by_user_and_activity_returns_dictionary_of_tuples_to_tuple
         )
     }
     result = parse.measurements_by_user_and_activity(given)
-    assert(result == expected)
+    assert result == expected
 
 
 def test_timepoint_is_valid_returns_true_for_normal_looking_data():
@@ -270,6 +270,17 @@ def test_next_valid_timepoint_returns_none_if_no_valid_measurements_remain_after
     assert(result is None)
 
 
+def test_split_into_intervals_returns_empty_tuple_given_empty_tuple():
+    given = ()
+    expected = ()
+    result = parse.split_into_intervals(
+        data=given,
+        interval_duration_in_nanoseconds=200000000,
+        maximum_gap_in_nanoseconds=100000000
+    )
+    assert result == expected
+
+
 def test_split_into_intervals_returns_two_expected_intervals():
     given = (
         (1, 'Jogging', 0, 4.48, 14.18, -2.11),
@@ -301,8 +312,7 @@ def test_split_into_intervals_returns_two_expected_intervals():
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
-    # import pdb; pdb.set_trace()
-    assert(result == expected)
+    assert result == expected
 
 
 def test_split_into_intervals_returns_two_expected_intervals_ignoring_trailing_data():
@@ -338,7 +348,7 @@ def test_split_into_intervals_returns_two_expected_intervals_ignoring_trailing_d
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
-    assert(result == expected)
+    assert result == expected
 
 
 def test_split_into_intervals_returns_three_expected_intervals():
@@ -382,7 +392,7 @@ def test_split_into_intervals_returns_three_expected_intervals():
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
-    assert(result == expected)
+    assert result == expected
 
 
 def test_split_into_intervals_works_for_intervals_of_lengths_5():
@@ -422,7 +432,7 @@ def test_split_into_intervals_works_for_intervals_of_lengths_5():
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
-    assert(result == expected)
+    assert result == expected
 
 
 def test_split_into_intervals_ignores_all_zero_rows():
@@ -464,7 +474,7 @@ def test_split_into_intervals_ignores_all_zero_rows():
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
-    assert(result == expected)
+    assert result == expected
 
 
 def test_split_into_intervals_drops_interval_if_gap_too_great_due_to_all_zero_rows():
@@ -497,7 +507,7 @@ def test_split_into_intervals_drops_interval_if_gap_too_great_due_to_all_zero_ro
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
-    assert(result == expected)
+    assert result == expected
 
 
 def test_split_into_intervals_raises_if_time_decreases():
@@ -590,3 +600,100 @@ def test_split_into_intervals_raises_if_time_repeats():
             interval_duration_in_nanoseconds=200000000,
             maximum_gap_in_nanoseconds=100000000
         )
+
+
+def test_intervals_by_user_and_activity_returns_expected_dictionary():
+    data = (
+        (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+        (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+        (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+        (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+        (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
+        (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
+        (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
+        (2, 'Jogging', 0, 4.48, 14.18, -2.11),
+        (2, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+        (2, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+        (2, 'Jogging', 140000000, 5.24, 7.21, -5.56),
+        (2, 'Jogging', 200000000, 7.27, 5.79, -6.51),
+        (2, 'Jogging', 1310000000, 1.61, 12.07, -2.18),
+        (2, 'Jogging', 1351000000, 1.5, 17.69, -3.6),
+        (2, 'Jogging', 1399000000, 7.06, 11.35, 0.89),
+        (2, 'Jogging', 1450000000, 6.66, 10.0, 11.73),
+        (2, 'Jogging', 1500000000, 1.76, 9.85, 1.99),
+        (2, 'Jogging', 1549000000, -0.0, -3.214402, 1.334794),
+        (2, 'Jogging', 1599999999, -2.7513103, 9.615966, 12.4489975),
+        (2, 'Walking', 0, 4.48, 14.18, -2.11),
+        (2, 'Walking', 50000000, 3.95, 12.26, -2.68),
+        (2, 'Walking', 100000000, 3.95, 12.26, -2.68),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 200000000, 5.24, 7.21, -5.56),
+        (2, 'Walking', 250000000, 7.27, 5.79, -6.51),
+        (2, 'Walking', 310000000, 1.61, 12.07, -2.18),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 450000000, 6.66, 10.0, 11.73),
+        (2, 'Walking', 500000000, 1.76, 9.85, 1.99),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 549000000, -0.0, -3.214402, 1.334794),
+        (2, 'Walking', 599999999, -2.7513103, 9.615966, 12.4489975),
+    )
+    intervals_1 = (
+        (
+            (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        ),
+        (
+            (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+            (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
+            (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
+            (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
+        ),
+    )
+    intervals_2 = (
+        (
+            (2, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (2, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (2, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (2, 'Jogging', 140000000, 5.24, 7.21, -5.56),
+            (2, 'Jogging', 200000000, 7.27, 5.79, -6.51),
+        ),
+        (
+            (2, 'Jogging', 1310000000, 1.61, 12.07, -2.18),
+            (2, 'Jogging', 1351000000, 1.5, 17.69, -3.6),
+            (2, 'Jogging', 1399000000, 7.06, 11.35, 0.89),
+            (2, 'Jogging', 1450000000, 6.66, 10.0, 11.73),
+            (2, 'Jogging', 1500000000, 1.76, 9.85, 1.99),
+        ),
+    )
+    intervals_3 = (
+        (
+            (2, 'Walking', 0, 4.48, 14.18, -2.11),
+            (2, 'Walking', 50000000, 3.95, 12.26, -2.68),
+            (2, 'Walking', 100000000, 3.95, 12.26, -2.68),
+            (2, 'Walking', 200000000, 5.24, 7.21, -5.56),
+        ),
+        (
+            (2, 'Walking', 450000000, 6.66, 10.0, 11.73),
+            (2, 'Walking', 500000000, 1.76, 9.85, 1.99),
+            (2, 'Walking', 549000000, -0.0, -3.214402, 1.334794),
+            (2, 'Walking', 599999999, -2.7513103, 9.615966, 12.4489975),
+        )
+    )
+    expected = {
+        (1, "Jogging"): intervals_1,
+        (1, "Walking"): (),
+        (2, "Jogging"): intervals_2,
+        (2, "Walking"): intervals_3,
+    }
+    result = parse.intervals_by_user_and_activity(
+        data,
+        interval_duration_in_nanoseconds=200000000,
+        maximum_gap_in_nanoseconds=100000000
+    )
+    assert result == expected
