@@ -784,3 +784,64 @@ def test_intervals_by_user_and_activity_returns_expected_dictionary():
         maximum_gap_in_nanoseconds=100000000
     )
     assert result == expected
+
+
+def test_count_intervals_returns_expected_dictionary():
+    intervals_1 = (
+        (
+            (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        ),
+        (
+            (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+            (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
+            (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
+            (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
+        ),
+    )
+    intervals_2 = (
+        (
+            (2, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (2, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (2, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (2, 'Jogging', 140000000, 5.24, 7.21, -5.56),
+            (2, 'Jogging', 200000000, 7.27, 5.79, -6.51),
+        ),
+        (
+            (2, 'Jogging', 1310000000, 1.61, 12.07, -2.18),
+            (2, 'Jogging', 1351000000, 1.5, 17.69, -3.6),
+            (2, 'Jogging', 1399000000, 7.06, 11.35, 0.89),
+            (2, 'Jogging', 1450000000, 6.66, 10.0, 11.73),
+            (2, 'Jogging', 1500000000, 1.76, 9.85, 1.99),
+        ),
+    )
+    intervals_3 = (
+        (
+            (2, 'Walking', 0, 4.48, 14.18, -2.11),
+            (2, 'Walking', 50000000, 3.95, 12.26, -2.68),
+            (2, 'Walking', 100000000, 3.95, 12.26, -2.68),
+            (2, 'Walking', 200000000, 5.24, 7.21, -5.56),
+        ),
+        (
+            (2, 'Walking', 450000000, 6.66, 10.0, 11.73),
+            (2, 'Walking', 500000000, 1.76, 9.85, 1.99),
+            (2, 'Walking', 549000000, -0.0, -3.214402, 1.334794),
+            (2, 'Walking', 599999999, -2.7513103, 9.615966, 12.4489975),
+        )
+    )
+    data = {
+        (1, "Jogging"): intervals_1,
+        (1, "Walking"): (),
+        (2, "Jogging"): intervals_2,
+        (2, "Walking"): intervals_3,
+    }
+    expected = {
+        (1, "Jogging"): 2,
+        (1, "Walking"): 0,
+        (2, "Jogging"): 2,
+        (2, "Walking"): 2,
+    }
+    result = parse.count_intervals(data)
+    assert result == expected

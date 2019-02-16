@@ -192,3 +192,12 @@ def intervals_by_user_and_activity(
         out[key] = split_into_intervals(series, interval_duration_in_nanoseconds, maximum_gap_in_nanoseconds,
                                         check_id=check_id, check_activity=check_activity)
     return out
+
+
+def count_intervals(intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
+                    ) -> Dict[Tuple[int, str], int]:
+    out = dict()
+    for key, value in intervals.items():
+        # noinspection PyTypeChecker
+        out[key] = len(value)
+    return out
