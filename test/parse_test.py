@@ -72,7 +72,7 @@ def test_extract_user_set_returns_expected_set_of_strings():
     assert(result == expected)
 
 
-def test_select_matching_timepoints_returns_expected_user_timepoints():
+def test_select_matching_measurements_returns_expected_user_measurements():
     given = (
         (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
         (33, 'Jogging', 49183932357000, -1.0760075, 3.445948, 8.049625),
@@ -83,7 +83,7 @@ def test_select_matching_timepoints_returns_expected_user_timepoints():
         (19, 'Sitting', 131623411592000, 9.08, -1.38, 1.69),
         (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
     )
-    result = parse.select_matching_timepoints(given, column=0, value=19)
+    result = parse.select_matching_measurements(given, column=0, value=19)
     expected = (
         (19, 'Sitting', 131623411592000, 9.08, -1.38, 1.69),
         (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
@@ -91,7 +91,7 @@ def test_select_matching_timepoints_returns_expected_user_timepoints():
     assert(result == expected)
 
 
-def test_select_matching_timepoints_returns_expected_activity_timepoints():
+def test_select_matching_measurements_returns_expected_activity_measurements():
     given = (
         (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
         (33, 'Jogging', 49183932357000, -1.0760075, 3.445948, 8.049625),
@@ -102,7 +102,7 @@ def test_select_matching_timepoints_returns_expected_activity_timepoints():
         (19, 'Sitting', 131623411592000, 9.08, -1.38, 1.69),
         (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
     )
-    result = parse.select_matching_timepoints(given, column=1, value="Walking")
+    result = parse.select_matching_measurements(given, column=1, value="Walking")
     expected = (
         (33, 'Walking', 49394992294000, 0.84446156, 8.008764, 2.7921712),
         (33, 'Walking', 49395102310000, 1.1168685, 8.62168, 3.7864566),
@@ -111,7 +111,7 @@ def test_select_matching_timepoints_returns_expected_activity_timepoints():
     assert(result == expected)
 
 
-def test_timepoints_by_user_returns_expected_dictionary():
+def test_measurements_by_user_returns_expected_dictionary():
     given = (
         (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
         (33, 'Jogging', 49183932357000, -1.0760075, 3.445948, 8.049625),
@@ -138,11 +138,11 @@ def test_timepoints_by_user_returns_expected_dictionary():
             (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
         )
     }
-    result = parse.timepoints_by_user(given)
+    result = parse.measurements_by_user(given)
     assert(result == expected)
 
 
-def test_timepoints_by_activity_returns_expected_dictionary():
+def test_measurements_by_activity_returns_expected_dictionary():
     given = (
         (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
         (33, 'Jogging', 49183932357000, -1.0760075, 3.445948, 8.049625),
@@ -169,11 +169,11 @@ def test_timepoints_by_activity_returns_expected_dictionary():
             (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
         )
     }
-    result = parse.timepoints_by_activity(given)
+    result = parse.measurements_by_activity(given)
     assert(result == expected)
 
 
-def test_timepoints_by_user_and_activity_returns_dictionary_of_tuples_to_tuples():
+def test_measurements_by_user_and_activity_returns_dictionary_of_tuples_to_tuples():
     given = (
         (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
         (33, 'Jogging', 49183932357000, -1.0760075, 3.445948, 8.049625),
@@ -207,7 +207,7 @@ def test_timepoints_by_user_and_activity_returns_dictionary_of_tuples_to_tuples(
             (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
         )
     }
-    result = parse.timepoints_by_user_and_activity(given)
+    result = parse.measurements_by_user_and_activity(given)
     assert(result == expected)
 
 
@@ -258,7 +258,7 @@ def test_next_valid_timepoint_returns_next_timepoint():
     assert (result == (1, 'Jogging', 50000000, 3.95, 12.26, -2.68))
 
 
-def test_next_valid_timepoint_returns_none_if_no_valid_timepoints_remain_after_index():
+def test_next_valid_timepoint_returns_none_if_no_valid_measurements_remain_after_index():
     given = (
         (1, 'Jogging', 0, 4.48, 14.18, -2.11),
         (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),

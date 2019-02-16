@@ -38,7 +38,7 @@ def extract_activity_set(data: Iterable[Tuple[int, str, int, float, float, float
     return set(x[1] for x in data)
 
 
-def select_matching_timepoints(
+def select_matching_measurements(
         data: Iterable[Tuple[int, str, int, float, float, float]],
         column: int,
         value: Any,
@@ -51,36 +51,36 @@ def select_matching_timepoints(
     return tuple(out)
 
 
-def timepoints_by_user(data: Iterable[Tuple[int, str, int, float, float, float]]
+def measurements_by_user(data: Iterable[Tuple[int, str, int, float, float, float]]
                        ) -> Dict[int, Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create a dictionary of user ids to timepoint data."""
     users = extract_user_set(data)
     out = dict()
     for user in users:
-        out[user] = select_matching_timepoints(data, column=0, value=user)
+        out[user] = select_matching_measurements(data, column=0, value=user)
     return out
 
 
-def timepoints_by_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
+def measurements_by_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
                            ) -> Dict[str, Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create a dictionary of activities to timepoint data."""
     activities = extract_activity_set(data)
     out = dict()
     for activity in activities:
-        out[activity] = select_matching_timepoints(data, column=1, value=activity)
+        out[activity] = select_matching_measurements(data, column=1, value=activity)
     return out
 
 
-def timepoints_by_user_and_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
+def measurements_by_user_and_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
                                     ) -> Dict[Tuple[int, str], Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create dictionary mapping user id and activity pairs to relevant timepoint data."""
     users = extract_user_set(data)
     activities = extract_activity_set(data)
     out = dict()
     for user in users:
-        user_timepoints = select_matching_timepoints(data, column=0, value=user)
+        user_measurements = select_matching_measurements(data, column=0, value=user)
         for activity in activities:
-            out[(user, activity)] = select_matching_timepoints(user_timepoints, column=1, value=activity)
+            out[(user, activity)] = select_matching_measurements(user_measurements, column=1, value=activity)
     return out
 
 
