@@ -211,20 +211,20 @@ def test_measurements_by_user_and_activity_returns_dictionary_of_tuples_to_tuple
     assert result == expected
 
 
-def test_timepoint_is_valid_returns_true_for_normal_looking_data():
+def test_measurement_is_valid_returns_true_for_normal_looking_data():
     given = (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413)
-    assert parse.timepoint_is_valid(given)
+    assert parse.measurement_is_valid(given)
 
 
-def test_timepoint_is_valid_returns_false_for_float_zeros():
+def test_measurement_is_valid_returns_false_for_float_zeros():
     given = (20, "Walking", 0, 0.0, 0.0, 0.0)
-    assert not parse.timepoint_is_valid(given)
+    assert not parse.measurement_is_valid(given)
 
 
-def test_timepoint_is_valid_returns_false_for_integer_zeros():
+def test_measurement_is_valid_returns_false_for_integer_zeros():
     given = (20, "Walking", 0, 0, 0, 0.0)
-    assert not parse.timepoint_is_valid(given)
-
+    assert not parse.measurement_is_valid(given)
+    
 
 def test_next_valid_timepoint_returns_none_if_starting_at_last_timepoint():
     given = (
@@ -311,6 +311,79 @@ def test_split_into_intervals_returns_two_expected_intervals():
         data=given,
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
+    )
+    assert result == expected
+
+
+def test_split_into_intervals_returns_two_expected_intervals_ignoring_repeating_timepoints():
+    given = (
+        (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+        (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+        (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+        (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+        (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+        (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
+        (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
+        (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
+        (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),  # Identical repeating rows in data at time 728192638000
+        (1, 'Jogging', 351000000, 1.5, 0, 0),  # Non-identical repeating rows found in data at time 8948102277000.
+        (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
+        (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
+    )
+    expected = (
+        (
+            (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        ),
+        (
+            (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+            (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
+            (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
+            (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
+        )
+    )
+    # Interval length of 0.2 seconds or 200,000,000 nanoseconds
+    result = parse.split_into_intervals(
+        data=given,
+        interval_duration_in_nanoseconds=200000000,
+        maximum_gap_in_nanoseconds=100000000
+    )
+    assert result == expected
+
+
+def test_split_into_intervals_handles_this_pathological_case_in_the_data():
+    given = (
+                (15, "Jogging", 728142284000, 13.14, -10.34, -2.9147544),
+                (15, "Jogging", 728192638000, 12.11, -7.93, 3.5276701),
+                (15, "Jogging", 728192638000, 12.11, -7.93, 3.5276701),
+                (15, "Jogging", 728192638000, 12.11, -7.93, 3.5276701),
+                (15, "Jogging", 0, 0, 0, 0.0),
+                (15, "Jogging", 0, 0, 0, 0.14982383),
+                (15, "Jogging", 728362224000, -0.11, 14.02, 0.14982383),
+                (15, "Jogging", 728362224000, -0.11, 14.02, 0.14982383),
+                (15, "Jogging", 728362224000, -0.11, 14.02, 0.14982383),
+                (15, "Jogging", 728582835000, 0.11, 6.59, -3.9499009),
+                (15, "Jogging", 728582835000, 0.11, 6.59, -3.9499009),
+                (15, "Jogging", 728632548000, 4.4, 17.08, 5.134871),
+                (15, "Jogging", 728682262000, 19.57, 19.57, -8.19945),
+    )
+    expected = (
+        (
+            (15, "Jogging", 728142284000, 13.14, -10.34, -2.9147544),
+            (15, "Jogging", 728192638000, 12.11, -7.93, 3.5276701),
+            (15, "Jogging", 728362224000, -0.11, 14.02, 0.14982383),
+            (15, "Jogging", 728582835000, 0.11, 6.59, -3.9499009),
+            (15, "Jogging", 728632548000, 4.4, 17.08, 5.134871),
+            (15, "Jogging", 728682262000, 19.57, 19.57, -8.19945),
+        ),
+    )
+    result = parse.split_into_intervals(
+        data=given,
+        interval_duration_in_nanoseconds=(6 * 10 ** 8),  # 0.6 seconds
+        maximum_gap_in_nanoseconds=300000000,  # 0.3 seconds
     )
     assert result == expected
 
@@ -570,29 +643,6 @@ def test_split_into_intervals_raises_if_activity_changes():
         (1, 'Jogging', 5000000000, 1.76, 9.85, 1.99),
         (1, 'Jogging', 5490000000, -0.0, -3.214402, 1.334794),
         (1, 'Walking', 5999999999, -2.7513103, 9.615966, 12.4489975),
-    )
-    with pytest.raises(ValueError):
-        parse.split_into_intervals(
-            data=given,
-            interval_duration_in_nanoseconds=200000000,
-            maximum_gap_in_nanoseconds=100000000
-        )
-
-
-def test_split_into_intervals_raises_if_time_repeats():
-    given = (
-        (1, 'Jogging', 0, 4.48, 14.18, -2.11),
-        (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
-        (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
-        (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
-        (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
-        (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
-        (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
-        (1, 'Jogging', 400000000, 7.06, 11.35, 0.89),
-        (1, 'Jogging', 4500000000, 6.66, 10.0, 11.73),
-        (1, 'Jogging', 5000000000, 1.76, 9.85, 1.99),
-        (1, 'Jogging', 5490000000, -0.0, -3.214402, 1.334794),
-        (1, 'Jogging', 5490000000, -2.7513103, 9.615966, 12.4489975),
     )
     with pytest.raises(ValueError):
         parse.split_into_intervals(

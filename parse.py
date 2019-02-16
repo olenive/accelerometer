@@ -1,6 +1,7 @@
 from typing import Tuple, Iterable, Dict, Set, Any, Optional
 
 
+
 def file_to_string(file_path: str) -> str:
     with open(file_path, 'r') as myfile:
         return myfile.read()
@@ -84,7 +85,7 @@ def measurements_by_user_and_activity(data: Iterable[Tuple[int, str, int, float,
     return out
 
 
-def timepoint_is_valid(timepoint: Tuple[int, str, int, float, float, float]) -> bool:
+def measurement_is_valid(timepoint: Tuple[int, str, int, float, float, float]) -> bool:
     """Function used to filter out data rows that appear to be corrupted."""
     if timepoint[2:] == (0, 0, 0, 0):
         return False
@@ -96,7 +97,7 @@ def next_valid_timepoint(data: Iterable[Tuple[int, str, int, float, float, float
                          starting_index: int) -> Optional[Tuple[int, str, int, float, float, float]]:
     """Return the next valid timepoint after the start index."""
     for timepoint in data[starting_index + 1:]:
-        if timepoint_is_valid(timepoint):
+        if measurement_is_valid(timepoint):
             return timepoint
 
 
@@ -125,11 +126,16 @@ def split_into_intervals(
     time_in_interval = 0
     interval = []
     out = []
+    previous_measurement = None
     for measurement in data:
-        if not timepoint_is_valid(measurement):
+        if not measurement_is_valid(measurement):
+            previous_measurement = measurement
             continue
         if len(interval) == 0:  # First valid measurement in current interval.
             interval = [measurement]
+            continue
+        # Ignore repeated time points even if the first measurement is not valid.
+        if previous_measurement is not None and previous_measurement[2] == measurement[2]:
             continue
         # Calculate time gap between current and previous timepoint.
         time_gap = measurement[2] - interval[-1][2]
@@ -149,6 +155,7 @@ def split_into_intervals(
             time_in_interval = 0
         else:
             interval.append(measurement)
+        previous_measurement = measurement
     # Check if final interval should be stored.
     if len(interval) != 0:
         if interval_duration_in_nanoseconds - time_in_interval <= maximum_gap_in_nanoseconds:
@@ -166,8 +173,6 @@ def intervals_by_user_and_activity(
     """Create a dictionary mapping user id and activity to measurement intervals of specified duration."""
     out = dict()
     for key, series in measurements_by_user_and_activity(data).items():
-        print("\nkey ", key)
-        print("series: ", series)
         out[key] = split_into_intervals(series, interval_duration_in_nanoseconds, maximum_gap_in_nanoseconds,
                                         check_id=check_id, check_activity=check_activity)
     return out
