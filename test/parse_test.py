@@ -173,45 +173,6 @@ def test_timepoints_by_activity_returns_expected_dictionary():
     assert(result == expected)
 
 
-# def test_timepoints_by_user_and_activity_returns_expected_dictionary_of_dictionaries():
-#     given = (
-#         (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
-#         (33, 'Jogging', 49183932357000, -1.0760075, 3.445948, 8.049625),
-#         (33, 'Jogging', 49184042312000, -1.0760075, 5.2165933, 6.891896),
-#         (33, 'Walking', 49394992294000, 0.84446156, 8.008764, 2.7921712),
-#         (33, 'Walking', 49395102310000, 1.1168685, 8.62168, 3.7864566),
-#         (20, "Walking", 0, 0.0, 0.0, 0.0),
-#         (19, 'Sitting', 131623411592000, 9.08, -1.38, 1.69),
-#         (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
-#     )
-#     expected = {
-#         33: {
-#             "Jogging": (
-#                 (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
-#                 (33, 'Jogging', 49183932357000, -1.0760075, 3.445948, 8.049625),
-#                 (33, 'Jogging', 49184042312000, -1.0760075, 5.2165933, 6.891896),
-#             ),
-#             "Walking": (
-#                 (33, 'Walking', 49394992294000, 0.84446156, 8.008764, 2.7921712),
-#                 (33, 'Walking', 49395102310000, 1.1168685, 8.62168, 3.7864566),
-#             )
-#         },
-#         20: {
-#             "Walking": (
-#                 (20, "Walking", 0, 0.0, 0.0, 0.0),
-#             )
-#         },
-#         19: {
-#             "Sitting": (
-#                 (19, 'Sitting', 131623411592000, 9.08, -1.38, 1.69),
-#                 (19, 'Sitting', 131623491487000, 9.0, -1.46, 1.73),
-#             )
-#         },
-#     }
-#     result = parse.timepoints_by_user_and_activity(given)
-#     assert(result == expected)
-
-
 def test_timepoints_by_user_and_activity_returns_dictionary_of_tuples_to_tuples():
     given = (
         (33, 'Jogging', 49183874710000, -0.9942854, 3.0237172, 8.308413),
@@ -377,7 +338,6 @@ def test_split_into_intervals_returns_two_expected_intervals_ignoring_trailing_d
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
-    # import pdb; pdb.set_trace()
     assert(result == expected)
 
 
@@ -424,78 +384,6 @@ def test_split_into_intervals_returns_three_expected_intervals():
     )
     assert(result == expected)
 
-
-# def test_split_into_intervals_does_not_return_last_interval_if_it_is_too_short():
-#     given = (
-#         (1, 'Jogging', 0, 4.48, 14.18, -2.11),
-#         (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
-#         (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
-#         (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
-#         (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
-#         (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
-#         (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
-#         (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
-#         (1, 'Jogging', 4500000000, 6.66, 10.0, 11.73),
-#         (1, 'Jogging', 5000000000, 1.76, 9.85, 1.99),
-#     )
-#     expected = (
-#         (
-#             (1, 'Jogging', 0, 4.48, 14.18, -2.11),
-#             (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
-#             (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
-#             (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
-#         ),
-#         (
-#             (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
-#             (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
-#             (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
-#             (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
-#         ),
-#     )
-#     # Interval length of 0.2 seconds or 200,000,000 nanoseconds
-#     result = parse.split_into_intervals(
-#         data=given,
-#         interval_duration_in_nanoseconds=200000000,
-#         maximum_gap_in_nanoseconds=100000000
-#     )
-#     assert(result == expected)
-    
-    
-# def test_split_into_intervals_does_not_return_middle_interval_if_it_is_too_short():
-#     given = (
-#         (1, 'Jogging', 0, 4.48, 14.18, -2.11),
-#         (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
-#         (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
-#         (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
-#         (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
-#         (1, 'Jogging', 299000000, 1.61, 12.07, -2.18),
-#         (1, 'Jogging', 4500000000, 6.66, 10.0, 11.73),
-#         (1, 'Jogging', 5000000000, 1.76, 9.85, 1.99),
-#         (1, 'Jogging', 5490000000, -0.0, -3.214402, 1.334794),
-#         (1, 'Jogging', 5999999999, -2.7513103, 9.615966, 12.4489975),
-#     )
-#     expected = (
-#         (
-#             (1, 'Jogging', 0, 4.48, 14.18, -2.11),
-#             (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
-#             (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
-#             (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
-#         ),
-#         (
-#             (1, 'Jogging', 4500000000, 6.66, 10.0, 11.73),
-#             (1, 'Jogging', 5000000000, 1.76, 9.85, 1.99),
-#             (1, 'Jogging', 5490000000, -0.0, -3.214402, 1.334794),
-#             (1, 'Jogging', 5999999999, -2.7513103, 9.615966, 12.4489975),
-#         ),
-#     )
-#     # Interval length of 0.2 seconds or 200,000,000 nanoseconds
-#     result = parse.split_into_intervals(
-#         data=given,
-#         interval_duration_in_nanoseconds=200000000,
-#         maximum_gap_in_nanoseconds=100000000
-#     )
-#     assert(result == expected)
-    
 
 def test_split_into_intervals_works_for_intervals_of_lengths_5():
     given = (

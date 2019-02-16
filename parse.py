@@ -118,15 +118,13 @@ def split_into_intervals(data: Iterable[Tuple[int, str, int, float, float, float
         activities = extract_activity_set(data)
         if len(set(activities)) != 1:
             raise ValueError("Expecting one unique activity but found: {}".format(set(activities)))
+    # noinspection PyTypeChecker
     if len(data) < 2:
         return ()
     time_in_interval = 0
     interval = []
     out = []
     for measurement in data:
-
-        print("\n\n^^^measurement = ", measurement)
-
         if not timepoint_is_valid(measurement):
             continue
         if len(interval) == 0:  # First valid measurement in current interval.
@@ -139,117 +137,21 @@ def split_into_intervals(data: Iterable[Tuple[int, str, int, float, float, float
             raise ValueError("Expecting time to increase but found {} and {}".format(
                 measurement[2], interval[-1][2]
             ))
-
-        print("measurement[2] - interval[-1][2] = ", measurement[2], "-", interval[-1][2])
-        print("time_gap / 200000000 = ", time_gap / 200000000)
-        print("time_in_interval = ", time_in_interval)
-
         if time_in_interval <= interval_duration_in_nanoseconds and time_gap > maximum_gap_in_nanoseconds:
             # Reset interval if time gap is too big and is not at end of interval.
-            print("\n RESETTING :\n", interval)
-            print("time_gap > maximum_gap_in_nanoseconds: ", time_gap, ">", maximum_gap_in_nanoseconds)
             interval = [measurement]
             time_in_interval = 0
-
         elif time_in_interval > interval_duration_in_nanoseconds:
-
             # Measurement is past the end of the interval.
-            print("\n B :\n", interval)
             out.append(tuple(interval))
             interval = [measurement]
             time_in_interval = 0
         else:
             interval.append(measurement)
         print(interval)
-
     # Check if final interval should be stored.
     if len(interval) != 0:
         if interval_duration_in_nanoseconds - time_in_interval <= maximum_gap_in_nanoseconds:
             print("\n C:\n", interval)
             out.append(tuple(interval))
     return tuple(out)
-
-
-    #     if time_in_interval < interval_duration_in_nanoseconds and time_gap > maximum_gap_in_nanoseconds:
-    #         # Reset interval if time gap is too big and is not at end of interval.
-    #         print("---# Reset interval if time gap is too big.")
-    #
-    #         interval = [measurement]
-    #         time_in_interval = 0
-    #
-    #     elif time_in_interval == interval_duration_in_nanoseconds:
-    #         # Measurement matches end of interval exactly
-    #         print("-----# Measurement matches end of interval exactly")
-    #         interval.append(measurement)
-    #         print("\n A :\n", interval)
-    #         out.append(tuple(interval))
-    #         interval = []
-    #         time_in_interval = 0
-    #     elif time_in_interval > interval_duration_in_nanoseconds:
-    #         # Measurement is past the end of the interval.
-    #         print("-------# Past end of interval.")
-    #         print("\n B :\n", interval)
-    #         out.append(tuple(interval))
-    #         interval = [measurement]
-    #         time_in_interval = 0
-    #     else:
-    #         interval.append(measurement)
-    #
-    #     print("interval = ", interval)
-    #
-    # # Check if final interval should be stored.
-    # if len(interval) != 0:
-    #     if interval_duration_in_nanoseconds - time_in_interval <= maximum_gap_in_nanoseconds:
-    #         print("\n C:\n", interval)
-    #         out.append(tuple(interval))
-    # return tuple(out)
-
-
-# def split_into_intervals_x(data: Iterable[Tuple[int, str, int, float, float, float]],
-#                          interval_duration_in_nanoseconds: int,
-#                          maximum_gap_in_nanoseconds: int,
-#                          check_id=True,
-#                          check_activity=True,
-#                          ) -> Iterable[Tuple[Tuple[int, str, int, float, float, float]]]:
-#     """Extract intervals of fixed duration from a single series of measurements.
-#
-#     Ignore measurements that have all zeros for time and acceleration values.
-#     """
-#     if check_id:
-#         ids = extract_user_set(data)
-#         if len(set(ids)) != 1:
-#             raise ValueError("Expecting one unique id but found: {}".format(set(ids)))
-#     if check_activity:
-#         activities = extract_activity_set(data)
-#         if len(set(activities)) != 1:
-#             raise ValueError("Expecting one unique activity but found: {}".format(set(activities)))
-#     out = []
-#     time_in_interval = 0
-#     interval = []
-#     for index, timepoint in enumerate(data):
-#         if not timepoint_is_valid(timepoint):
-#             continue
-#         # Determine time until next valid timepoint or end of interval.
-#         current_time = timepoint[2]
-#         next_valid = next_valid_timepoint(data, index)
-#         if next_valid is None:
-#             time_delta = interval_duration_in_nanoseconds - time_in_interval
-#         else:
-#             time_delta = next_valid[2] - current_time
-#         if time_delta <= 0:
-#             raise ValueError("Expecting time to increase but found {} and {} starting at index {}.".format(
-#                 current_time, next_valid[2], index
-#             ))
-#         # Reset interval if time gap is too big.
-#         if time_delta > maximum_gap_in_nanoseconds:
-#             interval = []
-#             time_in_interval = 0
-#             continue
-#         time_in_interval += time_delta
-#         interval.append(timepoint)
-#         # Store and reset interval if it is long enough.
-#         if time_in_interval >= interval_duration_in_nanoseconds:
-#             out.append(tuple(interval))
-#             interval = []
-#             time_in_interval = 0
-#     return tuple(out)
