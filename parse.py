@@ -1,7 +1,6 @@
 from typing import Tuple, Iterable, Dict, Set, Any, Optional
 
 
-
 def file_to_string(file_path: str) -> str:
     with open(file_path, 'r') as myfile:
         return myfile.read()
@@ -53,7 +52,7 @@ def select_matching_measurements(
 
 
 def measurements_by_user(data: Iterable[Tuple[int, str, int, float, float, float]]
-                       ) -> Dict[int, Tuple[Tuple[int, str, int, float, float, float]]]:
+                         ) -> Dict[int, Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create a dictionary of user ids to timepoint data."""
     users = extract_user_set(data)
     out = dict()
@@ -63,7 +62,7 @@ def measurements_by_user(data: Iterable[Tuple[int, str, int, float, float, float
 
 
 def measurements_by_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
-                           ) -> Dict[str, Tuple[Tuple[int, str, int, float, float, float]]]:
+                             ) -> Dict[str, Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create a dictionary of activities to timepoint data."""
     activities = extract_activity_set(data)
     out = dict()
