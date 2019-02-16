@@ -388,6 +388,30 @@ def test_split_into_intervals_handles_this_pathological_case_in_the_data():
     assert result == expected
 
 
+def test_split_into_intervals_handles_repeated_time_at_start_of_series():
+    given = (
+        (7, 'Downstairs', 208772451722000, 5.94, 7.16, -0.99),
+        (7, 'Downstairs', 208772451722000, 5.94, 7.16, -0.99),
+        (7, 'Downstairs', 208772561708000, 2.41, 2.15, -3.06),
+        (7, 'Downstairs', 208772601625000, 1.08, 5.67, -1.23),
+        (7, 'Downstairs', 208772641633000, 3.95, 18.31, 0.91),
+    )
+    expected = (
+        (
+            (7, 'Downstairs', 208772451722000, 5.94, 7.16, -0.99),
+            (7, 'Downstairs', 208772561708000, 2.41, 2.15, -3.06),
+            (7, 'Downstairs', 208772601625000, 1.08, 5.67, -1.23),
+            (7, 'Downstairs', 208772641633000, 3.95, 18.31, 0.91),
+        ),
+    )
+    result = parse.split_into_intervals(
+        data=given,
+        interval_duration_in_nanoseconds=200000000,
+        maximum_gap_in_nanoseconds=190000000
+    )
+    assert result == expected
+
+
 def test_split_into_intervals_returns_two_expected_intervals_ignoring_trailing_data():
     given = (
         (1, 'Jogging', 0, 4.48, 14.18, -2.11),

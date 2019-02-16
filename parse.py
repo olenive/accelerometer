@@ -128,11 +128,14 @@ def split_into_intervals(
     out = []
     previous_measurement = None
     for measurement in data:
+        # Skip invalid measurements.
         if not measurement_is_valid(measurement):
             previous_measurement = measurement
             continue
-        if len(interval) == 0:  # First valid measurement in current interval.
+        # Handle first valid measurement in current interval.
+        if len(interval) == 0:
             interval = [measurement]
+            previous_measurement = measurement
             continue
         # Ignore repeated time points even if the first measurement is not valid.
         if previous_measurement is not None and previous_measurement[2] == measurement[2]:
