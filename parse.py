@@ -142,11 +142,18 @@ def split_into_intervals(
             continue
         # Calculate time gap between current and previous timepoint.
         time_gap = measurement[2] - interval[-1][2]
+
+        # Handle time decreasing - indicating the start of a new measurement period.
+        if time_gap < 0:
+            # Reset interval because a step back in time indicates the start of a new measurement period.
+            if interval_duration_in_nanoseconds - time_in_interval < maximum_gap_in_nanoseconds:
+                out.append(tuple(interval))
+            interval = [measurement]
+            time_in_interval = 0
+            continue
+
+        # Handle time increasing
         time_in_interval += time_gap
-        if time_gap <= 0:
-            raise ValueError("Expecting time to increase but found {} and {}".format(
-                measurement[2], interval[-1][2]
-            ))
         if time_in_interval <= interval_duration_in_nanoseconds and time_gap > maximum_gap_in_nanoseconds:
             # Reset interval if time gap is too big and is not at end of interval.
             interval = [measurement]
@@ -159,6 +166,13 @@ def split_into_intervals(
         else:
             interval.append(measurement)
         previous_measurement = measurement
+        # Check just in case
+        if time_gap <= 0:
+            for datum in data:
+                print(datum)
+            raise ValueError("Expecting time to increase but found: \n{}\n{}".format(
+                interval[-1], measurement
+            ))
     # Check if final interval should be stored.
     if len(interval) != 0:
         if interval_duration_in_nanoseconds - time_in_interval <= maximum_gap_in_nanoseconds:
