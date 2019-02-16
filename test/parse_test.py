@@ -786,7 +786,7 @@ def test_intervals_by_user_and_activity_returns_expected_dictionary():
     assert result == expected
 
 
-def test_count_intervals_returns_expected_dictionary():
+def example_intervals():
     intervals_1 = (
         (
             (1, 'Jogging', 0, 4.48, 14.18, -2.11),
@@ -831,12 +831,16 @@ def test_count_intervals_returns_expected_dictionary():
             (2, 'Walking', 599999999, -2.7513103, 9.615966, 12.4489975),
         )
     )
-    data = {
+    return {
         (1, "Jogging"): intervals_1,
         (1, "Walking"): (),
         (2, "Jogging"): intervals_2,
         (2, "Walking"): intervals_3,
     }
+
+
+def test_count_intervals_returns_expected_dictionary():
+    data = example_intervals()
     expected = {
         (1, "Jogging"): 2,
         (1, "Walking"): 0,
@@ -844,4 +848,24 @@ def test_count_intervals_returns_expected_dictionary():
         (2, "Walking"): 2,
     }
     result = parse.count_intervals(data)
+    assert result == expected
+
+
+def test_count_intervals_per_activity_returns_expected_dictionary():
+    data = example_intervals()
+    expected = {
+        "Jogging": 4,
+        "Walking": 2,
+    }
+    result = parse.count_intervals_per_activity(data)
+    assert result == expected
+
+
+def test_count_intervals_per_user_returns_expected_dictionary():
+    data = example_intervals()
+    expected = {
+        1: 2,
+        2: 4,
+    }
+    result = parse.count_intervals_per_user(data)
     assert result == expected

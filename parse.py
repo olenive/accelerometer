@@ -201,3 +201,29 @@ def count_intervals(intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, s
         # noinspection PyTypeChecker
         out[key] = len(value)
     return out
+
+
+def count_intervals_per_activity(
+        intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
+) -> Dict[Tuple[int, str], int]:
+    activities = extract_activity_set(intervals)
+    out = {x: 0 for x in activities}
+    for key, value in intervals.items():
+        for activity in activities:
+            if activity in key:
+                # noinspection PyTypeChecker
+                out[activity] += len(value)
+    return out
+
+
+def count_intervals_per_user(
+        intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
+) -> Dict[Tuple[int, str], int]:
+    users = extract_user_set(intervals)
+    out = {x: 0 for x in users}
+    for key, value in intervals.items():
+        for user in users:
+            if user in key:
+                # noinspection PyTypeChecker
+                out[user] += len(value)
+    return out
