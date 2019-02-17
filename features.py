@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple, Iterable, Callable, Any
+from typing import Tuple, Iterable, Callable, Any, Dict
 
 import parse
 
@@ -57,7 +57,7 @@ def angle_change_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> 
 
 
 def calculate_for_measurements(measurements: Iterable[Tuple[int, str, int, float, float, float]],
-                               feature_function: Callable,
+                               feature_function: Callable[[np.ndarray, np.ndarray], Any],
                                ) -> Any:
     times, x, y, z = parse.relative_time_and_accelerations(measurements)
     accelerations = np.array([x, y, z])
@@ -65,6 +65,10 @@ def calculate_for_measurements(measurements: Iterable[Tuple[int, str, int, float
 
 
 def calculate_for_intervals(data: Iterable[Iterable[Tuple[int, str, int, float, float, float]]],
-                            feature_function: Callable):
+                            feature_function: Callable[[np.ndarray, np.ndarray], Any]) -> Tuple[Any]:
     return tuple([calculate_for_measurements(x, feature_function) for x in data])
 
+
+def calculate_for_dict(data: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
+                       feature_function: Callable[[np.ndarray, np.ndarray], Any]) -> Dict[Tuple[int, str], Tuple[Any]]:
+    return {k: calculate_for_intervals(v, feature_function) for k, v in data.items()}

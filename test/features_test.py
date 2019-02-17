@@ -181,3 +181,39 @@ def test_calculate_for_intervals_returns_expected_values():
     expected = (186, 6)
     result = features.calculate_for_intervals(intervals, lambda x, t: np.sum(x))
     assert result == expected
+
+
+def test_calculate_for_dict_returns_expected_dict():
+    intervals = {
+        (2, "Walking"): (
+            (
+                (2, 'Walking', 10000000, 10, 14, 18),
+                (2, 'Walking', 50000000, 11, 15, 19),
+                (2, 'Walking', 100000000, 12, 16, 20),
+                (2, 'Walking', 200000000, 13, 17, 21),
+            ),
+            (
+                (2, 'Walking', 10000000, 0, 0, 0),
+                (2, 'Walking', 50000000, 1, 0, 0),
+                (2, 'Walking', 100000000, 2, 0, 0),
+                (2, 'Walking', 200000000, 3, 0, 0),
+            )
+        ),
+        (2, "Standing"): (
+            (
+                (2, 'Standing', 10000000, 0, 0, 0),
+                (2, 'Standing', 50000000, 0, 0, 0),
+                (2, 'Standing', 100000000, 0, 0, 0),
+                (2, 'Standing', 200000000, 0, 0, 0),
+            ),
+            (
+                (2, 'Standing', 10000000, 0, 0, 0),
+                (2, 'Standing', 50000000, 1, 0, 0),
+                (2, 'Standing', 100000000, 2, 0, 0),
+                (2, 'Standing', 200000000, 3, 0, 0),
+            )
+        )
+    }
+    expected = {(2, "Walking"): (186, 6), (2, "Standing"): (0, 6)}
+    result = features.calculate_for_dict(intervals, lambda x, t: np.sum(x))
+    assert result == expected
