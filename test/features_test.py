@@ -41,7 +41,7 @@ def test_difference_works_for_2d_case():
     assert_array_equal(result, expected)
 
 
-def test_changes_in_magnitudes_per_second_returns_expected_values_for_2d_case():
+def test_magnitude_change_per_second_returns_expected_values_for_2d_case():
     accelerations = np.array([
         [3, 5, 8, 7],
         [4, 12, 15, 24]
@@ -57,7 +57,7 @@ def test_changes_in_magnitudes_per_second_returns_expected_values_for_2d_case():
         (17 - 13) / (2000000 / nanoseconds_in_one_second),
         (25 - 17) / (500000 / nanoseconds_in_one_second),
     ])
-    result = features.changes_in_magnitudes_per_second(accelerations, times_in_nanoseconds)
+    result = features.magnitude_change_per_second(accelerations, times_in_nanoseconds)
     assert_array_equal(result, expected)
 
 
@@ -109,7 +109,7 @@ def test_angle_difference_returns_expected_array():
     assert_array_equal(result, angles_between_column_vectors)
 
 
-def test_changes_in_angle_per_second_returns_expected_array():
+def test_angle_change_per_second_returns_expected_array():
     a = np.sqrt(3)
     vectors_in_columns = np.array([
         [1, 0, 0, 0, 0],
@@ -129,7 +129,7 @@ def test_changes_in_angle_per_second_returns_expected_array():
         60 * np.pi / 180 / (500000 / nanoseconds_in_one_second),
         np.pi / (500000 / nanoseconds_in_one_second),
     ])
-    result = features.angle_difference_per_second(vectors_in_columns, times_in_nanoseconds)
+    result = features.angle_change_per_second(vectors_in_columns, times_in_nanoseconds)
     assert_array_equal(result, expected)
 
 

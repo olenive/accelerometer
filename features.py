@@ -26,7 +26,7 @@ def difference_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> np
     return difference(x) / (difference(times_in_nanoseconds) / nanoseconds_in_one_second)
 
 
-def changes_in_magnitudes_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> np.ndarray:
+def magnitude_change_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> np.ndarray:
     """Calculate changes in magnitude of acceleration between measurements and convert to change per second."""
     magnitudes = np.linalg.norm(x, axis=0)
     return difference_per_second(magnitudes, times_in_nanoseconds)
@@ -51,7 +51,7 @@ def angle_difference(x: np.ndarray) -> np.ndarray:
     return np.array(out)
 
 
-def angle_difference_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> np.ndarray:
+def angle_change_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> np.ndarray:
     angles = angle_difference(x)
     return angles / (difference(times_in_nanoseconds) / nanoseconds_in_one_second)
 
