@@ -65,10 +65,24 @@ def calculate_for_measurements(measurements: Iterable[Tuple[int, str, int, float
 
 
 def calculate_for_intervals(data: Iterable[Iterable[Tuple[int, str, int, float, float, float]]],
-                            feature_function: Callable[[np.ndarray, np.ndarray], Any]) -> Tuple[Any]:
+                            feature_function: Callable[[np.ndarray, np.ndarray], Any]
+                            ) -> Tuple[Any]:
     return tuple([calculate_for_measurements(x, feature_function) for x in data])
 
 
 def calculate_for_dict(data: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
-                       feature_function: Callable[[np.ndarray, np.ndarray], Any]) -> Dict[Tuple[int, str], Tuple[Any]]:
+                       feature_function: Callable[[np.ndarray, np.ndarray], Any]
+                       ) -> Dict[Tuple[int, str], Tuple[Any]]:
     return {k: calculate_for_intervals(v, feature_function) for k, v in data.items()}
+
+
+def mean_magnitude_change_per_second(x, t) -> float:
+    return np.mean(magnitude_change_per_second(x, t))
+
+
+def mean_absolute_magnitude_change_per_second(x, t) -> float:
+    return np.mean(np.absolute(magnitude_change_per_second(x, t)))
+
+
+def mean_angle_change_per_second(x, t) -> float:
+    return np.mean(angle_change_per_second(x, t))
