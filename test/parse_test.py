@@ -1,4 +1,6 @@
 import pytest
+import numpy as np
+from numpy.testing import assert_array_equal
 
 import parse
 
@@ -448,6 +450,34 @@ def test_split_into_intervals_returns_two_expected_intervals_ignoring_trailing_d
     assert result == expected
 
 
+def test_split_into_intervals_drops_last_interval_because_gap_to_end_is_too_large():
+    given = (
+        (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+        (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+        (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+        (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+        (1, 'Jogging', 260000000, 1.61, 12.07, -2.18),
+        (1, 'Jogging', 270000000, 1.5, 17.69, -3.6),
+        (1, 'Jogging', 299000000, 7.06, 11.35, 0.89),
+    )
+    expected = (
+        (
+            (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        ),
+    )
+    # Interval length of 0.2 seconds or 200,000,000 nanoseconds
+    result = parse.split_into_intervals(
+        data=given,
+        interval_duration_in_nanoseconds=200000000,
+        maximum_gap_in_nanoseconds=100000000
+    )
+    assert result == expected
+
+
 def test_split_into_intervals_returns_three_expected_intervals():
     given = (
         (1, 'Jogging', 0, 4.48, 14.18, -2.11),
@@ -486,6 +516,97 @@ def test_split_into_intervals_returns_three_expected_intervals():
     # Interval length of 0.2 seconds or 200,000,000 nanoseconds
     result = parse.split_into_intervals(
         data=given,
+        interval_duration_in_nanoseconds=200000000,
+        maximum_gap_in_nanoseconds=100000000
+    )
+    assert result == expected
+
+
+def test_intervals_by_user_and_activity_drops_intervals_with_large_gap():
+    data = (
+        (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+        (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+        (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+        (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+        (1, 'Jogging', 251000000, 1.61, 12.07, -2.18),
+        (1, 'Jogging', 252000000, 1.5, 17.69, -3.6),
+        (1, 'Jogging', 299000000, 7.06, 11.35, 0.89),
+        (2, 'Jogging', 0, 4.48, 14.18, -2.11),
+        (2, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+        (2, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+        (2, 'Jogging', 140000000, 5.24, 7.21, -5.56),
+        (2, 'Jogging', 200000000, 7.27, 5.79, -6.51),
+        (2, 'Jogging', 1310000000, 1.61, 12.07, -2.18),
+        (2, 'Jogging', 1351000000, 1.5, 17.69, -3.6),
+        (2, 'Jogging', 1399000000, 7.06, 11.35, 0.89),
+        (2, 'Jogging', 1450000000, 6.66, 10.0, 11.73),
+        (2, 'Jogging', 1500000000, 1.76, 9.85, 1.99),
+        (2, 'Jogging', 1549000000, -0.0, -3.214402, 1.334794),
+        (2, 'Jogging', 1599999999, -2.7513103, 9.615966, 12.4489975),
+        (2, 'Walking', 0, 4.48, 14.18, -2.11),
+        (2, 'Walking', 50000000, 3.95, 12.26, -2.68),
+        (2, 'Walking', 100000000, 3.95, 12.26, -2.68),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 200000000, 5.24, 7.21, -5.56),
+        (2, 'Walking', 250000000, 7.27, 5.79, -6.51),
+        (2, 'Walking', 310000000, 1.61, 12.07, -2.18),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 450000000, 6.66, 10.0, 11.73),
+        (2, 'Walking', 500000000, 1.76, 9.85, 1.99),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 0, 0, 0, 0.0),
+        (2, 'Walking', 549000000, -0.0, -3.214402, 1.334794),
+        (2, 'Walking', 599999999, -2.7513103, 9.615966, 12.4489975),
+    )
+    intervals_1 = (
+        (
+            (1, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (1, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (1, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (1, 'Jogging', 200000000, 5.24, 7.21, -5.56),
+        ),
+    )
+    intervals_2 = (
+        (
+            (2, 'Jogging', 0, 4.48, 14.18, -2.11),
+            (2, 'Jogging', 50000000, 3.95, 12.26, -2.68),
+            (2, 'Jogging', 100000000, 6.05, 9.72, -1.95),
+            (2, 'Jogging', 140000000, 5.24, 7.21, -5.56),
+            (2, 'Jogging', 200000000, 7.27, 5.79, -6.51),
+        ),
+        (
+            (2, 'Jogging', 1310000000, 1.61, 12.07, -2.18),
+            (2, 'Jogging', 1351000000, 1.5, 17.69, -3.6),
+            (2, 'Jogging', 1399000000, 7.06, 11.35, 0.89),
+            (2, 'Jogging', 1450000000, 6.66, 10.0, 11.73),
+            (2, 'Jogging', 1500000000, 1.76, 9.85, 1.99),
+        ),
+    )
+    intervals_3 = (
+        (
+            (2, 'Walking', 0, 4.48, 14.18, -2.11),
+            (2, 'Walking', 50000000, 3.95, 12.26, -2.68),
+            (2, 'Walking', 100000000, 3.95, 12.26, -2.68),
+            (2, 'Walking', 200000000, 5.24, 7.21, -5.56),
+        ),
+        (
+            (2, 'Walking', 450000000, 6.66, 10.0, 11.73),
+            (2, 'Walking', 500000000, 1.76, 9.85, 1.99),
+            (2, 'Walking', 549000000, -0.0, -3.214402, 1.334794),
+            (2, 'Walking', 599999999, -2.7513103, 9.615966, 12.4489975),
+        )
+    )
+    expected = {
+        (1, "Jogging"): intervals_1,
+        (1, "Walking"): (),
+        (2, "Jogging"): intervals_2,
+        (2, "Walking"): intervals_3,
+    }
+    result = parse.intervals_by_user_and_activity(
+        data,
         interval_duration_in_nanoseconds=200000000,
         maximum_gap_in_nanoseconds=100000000
     )
@@ -869,3 +990,20 @@ def test_count_intervals_per_user_returns_expected_dictionary():
     }
     result = parse.count_intervals_per_user(data)
     assert result == expected
+
+
+def test_relative_time_and_accelerations_returns_expected_tuple_of_ndarrays():
+    given = (
+        (1, 'Jogging', 250000000, 7.27, 5.79, -6.51),
+        (1, 'Jogging', 310000000, 1.61, 12.07, -2.18),
+        (1, 'Jogging', 351000000, 1.5, 17.69, -3.6),
+        (1, 'Jogging', 399000000, 7.06, 11.35, 0.89),
+    )
+    times = np.array([0, 60000000, 101000000, 149000000])
+    x = np.array([7.27, 1.61, 1.5, 7.06])
+    y = np.array([5.79, 12.07, 17.69, 11.35])
+    z = np.array([-6.51, -2.18, -3.6, 0.89])
+    expected = times, x, y, z
+    result = parse.relative_time_and_accelerations(given)
+    for i in range(4):
+        assert_array_equal(result[i], expected[i])

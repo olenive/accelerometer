@@ -1,3 +1,4 @@
+import numpy as np
 from typing import Tuple, Iterable, Dict, Set, Any, Optional
 
 
@@ -227,3 +228,13 @@ def count_intervals_per_user(
                 # noinspection PyTypeChecker
                 out[user] += len(value)
     return out
+
+
+def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, float, float, float]]
+                                    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    raw_times = np.array([v[2] for v in measurements])
+    t = raw_times - np.min(raw_times)
+    x = np.array([v[3] for v in measurements])
+    y = np.array([v[4] for v in measurements])
+    z = np.array([v[5] for v in measurements])
+    return t, x, y, z
