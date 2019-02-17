@@ -57,8 +57,14 @@ def angle_difference_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray)
 
 
 def calculate_for_measurements(measurements: Iterable[Tuple[int, str, int, float, float, float]],
-                                       feature_function: Callable,
-                                       ) -> Any:
+                               feature_function: Callable,
+                               ) -> Any:
     times, x, y, z = parse.relative_time_and_accelerations(measurements)
     accelerations = np.array([x, y, z])
     return feature_function(accelerations, times)
+
+
+def calculate_for_intervals(data: Iterable[Iterable[Tuple[int, str, int, float, float, float]]],
+                            feature_function: Callable):
+    return tuple([calculate_for_measurements(x, feature_function) for x in data])
+

@@ -135,11 +135,11 @@ def test_changes_in_angle_per_second_returns_expected_array():
 
 def test_calculate_for_measurements_returns_expected_values():
     measurements = (
-            (2, 'Walking', 10000000, 10, 14, 18),
-            (2, 'Walking', 50000000, 11, 15, 19),
-            (2, 'Walking', 100000000, 12, 16, 20),
-            (2, 'Walking', 200000000, 13, 17, 21),
-        )
+        (2, 'Walking', 10000000, 10, 14, 18),
+        (2, 'Walking', 50000000, 11, 15, 19),
+        (2, 'Walking', 100000000, 12, 16, 20),
+        (2, 'Walking', 200000000, 13, 17, 21),
+    )
     result = features.calculate_for_measurements(measurements, lambda x, t: (x, t))
     expected_x = np.array([
         [10, 11, 12, 13],
@@ -149,3 +149,35 @@ def test_calculate_for_measurements_returns_expected_values():
     expected_t = np.array([10000000, 50000000, 100000000, 200000000]) - 10000000
     assert_array_equal(result[0], expected_x)
     assert_array_equal(result[1], expected_t)
+
+
+def test_calculate_for_measurements_returns_expected_sum():
+    measurements = (
+        (2, 'Walking', 10000000, 10, 14, 18),
+        (2, 'Walking', 50000000, 11, 15, 19),
+        (2, 'Walking', 100000000, 12, 16, 20),
+        (2, 'Walking', 200000000, 13, 17, 21),
+    )
+    expected = np.sum(list(range(10, 22)))  # 186
+    result = features.calculate_for_measurements(measurements, lambda x, t: np.sum(x))
+    assert result == expected
+
+
+def test_calculate_for_intervals_returns_expected_values():
+    intervals = (
+        (
+            (2, 'Walking', 10000000, 10, 14, 18),
+            (2, 'Walking', 50000000, 11, 15, 19),
+            (2, 'Walking', 100000000, 12, 16, 20),
+            (2, 'Walking', 200000000, 13, 17, 21),
+        ),
+        (
+            (2, 'Walking', 10000000, 0, 0, 0),
+            (2, 'Walking', 50000000, 1, 0, 0),
+            (2, 'Walking', 100000000, 2, 0, 0),
+            (2, 'Walking', 200000000, 3, 0, 0),
+        )
+    )
+    expected = (186, 6)
+    result = features.calculate_for_intervals(intervals, lambda x, t: np.sum(x))
+    assert result == expected
