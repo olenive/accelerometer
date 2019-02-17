@@ -238,3 +238,17 @@ def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, 
     y = np.array([v[4] for v in measurements])
     z = np.array([v[5] for v in measurements])
     return t, x, y, z
+
+
+def train_test_folds(ids: Iterable, shuffled_index_sequence: Iterable, num_folds: int) -> Iterable[Tuple[set, set]]:
+    length_test = len(ids) // num_folds
+    out = []
+    for i in range(num_folds):
+        test_indices = shuffled_index_sequence[i * length_test: i * length_test + length_test]
+        train_indices = (shuffled_index_sequence[: i * length_test:] +
+                         shuffled_index_sequence[i * length_test + length_test:]
+                         )
+        test_ids = set([ids[i] for i in test_indices])
+        train_ids = set([ids[i] for i in train_indices])
+        out.append((train_ids, test_ids))
+    return tuple(out)
