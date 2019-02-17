@@ -1007,3 +1007,31 @@ def test_relative_time_and_accelerations_returns_expected_tuple_of_ndarrays():
     result = parse.relative_time_and_accelerations(given)
     for i in range(4):
         assert_array_equal(result[i], expected[i])
+
+
+def test_collect_results_for_activity_returns_expected_values_for_walking():
+    given = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (3, "Standing"): (),
+        (4, "Walking"): (),
+        (4, "Standing"): (10,),
+    }
+    expected = (186, 6, 200)
+    result = parse.collect_results_for_activity(given, "Walking")
+    assert result == expected
+
+
+def test_collect_results_for_activity_returns_expected_values_for_standing():
+    given = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (3, "Standing"): (),
+        (4, "Walking"): (),
+        (4, "Standing"): (10,),
+    }
+    expected = (0, 6, 7, 10)
+    result = parse.collect_results_for_activity(given, "Standing")
+    assert result == expected

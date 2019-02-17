@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import chain
 from typing import Tuple, Iterable, Dict, Set, Any, Optional
 
 
@@ -240,3 +241,15 @@ def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, 
     y = np.array([v[4] for v in measurements])
     z = np.array([v[5] for v in measurements])
     return t, x, y, z
+
+
+def collect_results_for_activity(
+        results: Dict[Tuple[int, str], Tuple[Any]],
+        activity: str
+) -> Tuple[Any]:
+    """Gather values for all keys that contain the specified activity."""
+    out = []
+    for key, value in results.items():
+        if activity in key:
+            out.append(value)
+    return tuple(chain(*out))
