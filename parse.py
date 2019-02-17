@@ -207,6 +207,7 @@ def count_intervals(intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, s
 def count_intervals_per_activity(
         intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
 ) -> Dict[Tuple[int, str], int]:
+    # noinspection PyTypeChecker
     activities = extract_activity_set(intervals)
     out = {x: 0 for x in activities}
     for key, value in intervals.items():
@@ -220,6 +221,7 @@ def count_intervals_per_activity(
 def count_intervals_per_user(
         intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
 ) -> Dict[Tuple[int, str], int]:
+    # noinspection PyTypeChecker
     users = extract_user_set(intervals)
     out = {x: 0 for x in users}
     for key, value in intervals.items():
@@ -238,17 +240,3 @@ def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, 
     y = np.array([v[4] for v in measurements])
     z = np.array([v[5] for v in measurements])
     return t, x, y, z
-
-
-def train_test_folds(ids: Iterable, shuffled_index_sequence: Iterable, num_folds: int) -> Iterable[Tuple[set, set]]:
-    length_test = len(ids) // num_folds
-    out = []
-    for i in range(num_folds):
-        test_indices = shuffled_index_sequence[i * length_test: i * length_test + length_test]
-        train_indices = (shuffled_index_sequence[: i * length_test:] +
-                         shuffled_index_sequence[i * length_test + length_test:]
-                         )
-        test_ids = set([ids[i] for i in test_indices])
-        train_ids = set([ids[i] for i in train_indices])
-        out.append((train_ids, test_ids))
-    return tuple(out)
