@@ -1,7 +1,11 @@
 import numpy as np
+from typing import Tuple, Iterable, Callable, Any
+
+import parse
 
 
 nanoseconds_in_one_second = 1000000000
+
 
 def mean_of_magnitudes(x: np.ndarray) -> np.ndarray:
     return np.mean(np.linalg.norm(x, axis=0))
@@ -50,3 +54,11 @@ def angle_difference(x: np.ndarray) -> np.ndarray:
 def angle_difference_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> np.ndarray:
     angles = angle_difference(x)
     return angles / (difference(times_in_nanoseconds) / nanoseconds_in_one_second)
+
+
+def calculate_for_measurements(measurements: Iterable[Tuple[int, str, int, float, float, float]],
+                                       feature_function: Callable,
+                                       ) -> Any:
+    times, x, y, z = parse.relative_time_and_accelerations(measurements)
+    accelerations = np.array([x, y, z])
+    return feature_function(accelerations, times)

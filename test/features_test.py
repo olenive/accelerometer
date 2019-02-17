@@ -131,3 +131,21 @@ def test_changes_in_angle_per_second_returns_expected_array():
     ])
     result = features.angle_difference_per_second(vectors_in_columns, times_in_nanoseconds)
     assert_array_equal(result, expected)
+
+
+def test_calculate_for_measurements_returns_expected_values():
+    measurements = (
+            (2, 'Walking', 10000000, 10, 14, 18),
+            (2, 'Walking', 50000000, 11, 15, 19),
+            (2, 'Walking', 100000000, 12, 16, 20),
+            (2, 'Walking', 200000000, 13, 17, 21),
+        )
+    result = features.calculate_for_measurements(measurements, lambda x, t: (x, t))
+    expected_x = np.array([
+        [10, 11, 12, 13],
+        [14, 15, 16, 17],
+        [18, 19, 20, 21]
+    ])
+    expected_t = np.array([10000000, 50000000, 100000000, 200000000]) - 10000000
+    assert_array_equal(result[0], expected_x)
+    assert_array_equal(result[1], expected_t)
