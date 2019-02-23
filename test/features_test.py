@@ -57,7 +57,7 @@ def test_magnitude_change_per_second_returns_expected_values_for_2d_case():
         (17 - 13) / (2000000 / nanoseconds_in_one_second),
         (25 - 17) / (500000 / nanoseconds_in_one_second),
     ])
-    result = features.magnitude_change_per_second(accelerations, times_in_nanoseconds)
+    result = features.magnitude_change_per_second(times_in_nanoseconds, accelerations)
     assert_array_equal(result, expected)
 
 
@@ -129,7 +129,7 @@ def test_angle_change_per_second_returns_expected_array():
         60 * np.pi / 180 / (500000 / nanoseconds_in_one_second),
         np.pi / (500000 / nanoseconds_in_one_second),
     ])
-    result = features.angle_change_per_second(vectors_in_columns, times_in_nanoseconds)
+    result = features.angle_change_per_second(times_in_nanoseconds, vectors_in_columns)
     assert_array_equal(result, expected)
 
 
@@ -223,77 +223,3 @@ def test_extract_vectors_from_dict_returns_expected_numpy_arrays():
     result = features.extract_vectors_from_dict(given)
     assert_array_equal(result[0], expected[0])
     assert_array_equal(result[1], expected[1])
-
-
-# def test_vector_for_measurement_sreturns_expected_values():
-#     measurements = (
-#         (2, 'Walking', 10000000, 10, 14, 18),
-#         (2, 'Walking', 50000000, 11, 15, 19),
-#         (2, 'Walking', 100000000, 12, 16, 20),
-#         (2, 'Walking', 200000000, 13, 17, 21),
-#     )
-#     expected = (186, 15.5)
-#     feature_functions = (
-#         lambda
-#     )
-#     result = features.vector_for_measurements(intervals, lambda t, x: np.sum(x))
-#     assert result == expected
-
-
-# def test_calculate_for_intervals_returns_expected_values():
-#     intervals = (
-#         (
-#             (2, 'Walking', 10000000, 10, 14, 18),
-#             (2, 'Walking', 50000000, 11, 15, 19),
-#             (2, 'Walking', 100000000, 12, 16, 20),
-#             (2, 'Walking', 200000000, 13, 17, 21),
-#         ),
-#         (
-#             (2, 'Walking', 10000000, 0, 0, 0),
-#             (2, 'Walking', 50000000, 1, 0, 0),
-#             (2, 'Walking', 100000000, 2, 0, 0),
-#             (2, 'Walking', 200000000, 3, 0, 0),
-#         )
-#     )
-#     expected = (186, 6)
-#     result = features.calculate_for_intervals(intervals, lambda x, t: np.sum(x))
-#     assert result == expected
-#
-#
-# def test_calculate_for_dict_returns_expected_dict():
-#     intervals = {
-#         (2, "Walking"): (
-#             (
-#                 (2, 'Walking', 10000000, 10, 14, 18),
-#                 (2, 'Walking', 50000000, 11, 15, 19),
-#                 (2, 'Walking', 100000000, 12, 16, 20),
-#                 (2, 'Walking', 200000000, 13, 17, 21),
-#             ),
-#             (
-#                 (2, 'Walking', 10000000, 0, 0, 0),
-#                 (2, 'Walking', 50000000, 1, 0, 0),
-#                 (2, 'Walking', 100000000, 2, 0, 0),
-#                 (2, 'Walking', 200000000, 3, 0, 0),
-#             )
-#         ),
-#         (2, "Standing"): (
-#             (
-#                 (2, 'Standing', 10000000, 0, 0, 0),
-#                 (2, 'Standing', 50000000, 0, 0, 0),
-#                 (2, 'Standing', 100000000, 0, 0, 0),
-#                 (2, 'Standing', 200000000, 0, 0, 0),
-#             ),
-#             (
-#                 (2, 'Standing', 10000000, 0, 0, 0),
-#                 (2, 'Standing', 50000000, 1, 0, 0),
-#                 (2, 'Standing', 100000000, 2, 0, 0),
-#                 (2, 'Standing', 200000000, 3, 0, 0),
-#             )
-#         )
-#     }
-#     expected = {(2, "Walking"): (186, 6), (2, "Standing"): (0, 6)}
-#     result = features.calculate_for_dict(intervals, lambda x, t: np.sum(x))
-#     assert result == expected
-
-
-
