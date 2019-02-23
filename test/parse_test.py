@@ -1080,6 +1080,47 @@ def test_collect_dict_values_by_key_content_returns_expected_dict_for_user_id():
     assert result == expected
 
 
+def test_collect_dict_values_by_listed_key_contents_returns_expected_dict_for_activities():
+    given = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (3, "Standing"): (),
+        (4, "Walking"): (),
+        (4, "Standing"): (10,),
+    }
+    expected = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (3, "Standing"): (),
+        (4, "Walking"): (),
+        (4, "Standing"): (10,),
+    }
+    result = parse.collect_dict_values_by_listed_key_contents(given, ("Walking", "Standing", "Sitting"))
+    assert result == expected
+
+
+def test_collect_dict_values_by_listed_key_contents_returns_expected_dict_for_user_id():
+    given = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (3, "Standing"): (),
+        (4, "Walking"): (),
+        (4, "Standing"): (10,),
+    }
+    ids = {2, 3}
+    expected = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (3, "Standing"): (),
+    }
+    result = parse.collect_dict_values_by_listed_key_contents(given, ids)
+    assert result == expected
+
+
 # These may not be needed
 def test_collect_results_for_activity_returns_expected_values_for_walking():
     given = {

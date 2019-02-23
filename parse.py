@@ -243,12 +243,25 @@ def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, 
 
 def collect_dict_values_by_key_content(
         dictionary: Dict[Tuple[int, str], Iterable[Any]],
-        activity: str
+        content: Any
 ) -> Dict[Tuple[int, str], Iterable[Any]]:
     out = dict()
     for key, value in dictionary.items():
-        if activity in key:
+        if content in key:
             out[key] = value
+    return out
+
+
+def collect_dict_values_by_listed_key_contents(
+        dictionary: Dict[Tuple[int, str], Iterable[Any]],
+        content: Iterable[int]
+) -> Dict[Tuple[int, str], Iterable[Any]]:
+    out = dict()
+    for key, value in dictionary.items():
+        for item in content:
+            if item in key:
+                out[key] = value
+                continue
     return out
 
 
