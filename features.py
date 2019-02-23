@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple, Iterable, Callable, Any, Dict
+from typing import Tuple, Iterable, Callable, Any, Dict, Set
 
 import parse
 
@@ -56,33 +56,80 @@ def angle_change_per_second(x: np.ndarray, times_in_nanoseconds: np.ndarray) -> 
     return angles / (difference(times_in_nanoseconds) / nanoseconds_in_one_second)
 
 
-def calculate_for_measurements(measurements: Iterable[Tuple[int, str, int, float, float, float]],
-                               feature_function: Callable[[np.ndarray, np.ndarray], Any],
-                               ) -> Any:
+def calculate_from_measurements(measurements: Iterable[Tuple[int, str, int, float, float, float]],
+                                feature_function: Callable[[np.ndarray, np.ndarray], Any],
+                                ) -> Any:
+    """Apply feature calculating function to a measurement interval."""
     times, x, y, z = parse.relative_time_and_accelerations(measurements)
     accelerations = np.array([x, y, z])
-    return feature_function(accelerations, times)
+    return feature_function(times, accelerations)
 
 
-def calculate_for_intervals(data: Iterable[Iterable[Tuple[int, str, int, float, float, float]]],
-                            feature_function: Callable[[np.ndarray, np.ndarray], Any]
-                            ) -> Tuple[Any]:
-    return tuple([calculate_for_measurements(x, feature_function) for x in data])
+def vectors_for_intervals(
+    intervals: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
+    feature_functions: Iterable[Callable[[np.ndarray, np.ndarray], Any]],
+) -> Dict[Tuple[int, str], Iterable[Iterable[float]]]:
+    """Apply feature calculating functions to all measurement intervals in dictionary."""
+    out = dict()
+    for key, values in intervals.items():
+        feature_vectors = []
+        for measurements in values:
+            feature_vectors.append(
+                tuple(calculate_from_measurements(measurements, f) for f in feature_functions)
+            )
+        out[key] = tuple(feature_vectors)
+    return out
 
 
-def calculate_for_dict(data: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
-                       feature_function: Callable[[np.ndarray, np.ndarray], Any]
-                       ) -> Dict[Tuple[int, str], Tuple[Any]]:
-    return {k: calculate_for_intervals(v, feature_function) for k, v in data.items()}
+def extract_vectors_from_dict(interval_features: Dict[Tuple[int, str], Iterable[Iterable[float]]]
+                              ) -> Iterable[np.ndarray]:
+    """Produce a vector of values for each feature from a dictionary of features per measurement interval."""
+    return ()
+
+# def calculate_for_intervals(data: Iterable[Iterable[Tuple[int, str, int, float, float, float]]],
+#                             feature_function: Callable[[np.ndarray, np.ndarray], Any]
+#                             ) -> Tuple[Any]:
+#     return tuple([calculate_for_measurements(x, feature_function) for x in data])
+#
+#
+# def calculate_for_dict(data: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
+#                        feature_function: Callable[[np.ndarray, np.ndarray], Any]
+#                        ) -> Dict[Tuple[int, str], Tuple[Any]]:
+#     return {k: calculate_for_intervals(v, feature_function) for k, v in data.items()}
 
 
-def mean_magnitude_change_per_second(x, t) -> float:
-    return np.mean(magnitude_change_per_second(x, t))
+def mean_magnitude_change_per_second(t, x) -> float:
+    return np.mean(magnitude_change_per_second(t, x))
 
 
-def mean_absolute_magnitude_change_per_second(x, t) -> float:
-    return np.mean(np.absolute(magnitude_change_per_second(x, t)))
+def mean_absolute_magnitude_change_per_second(t, x) -> float:
+    return np.mean(np.absolute(magnitude_change_per_second(t, x)))
 
 
-def mean_angle_change_per_second(x, t) -> float:
-    return np.mean(angle_change_per_second(x, t))
+def mean_angle_change_per_second(t, x) -> float:
+    return np.mean(angle_change_per_second(t, x))
+
+
+# def collect_feature_values_for_activity(
+#         feature_values: Dict[Tuple[int, str], Iterable[float]],
+#         activities: Set[str]
+# ) -> Dict[str, Iterable[float]]:
+#     activity_feature_values = dict()
+#     for activity in activities:
+#         activity_feature_values[activity] = parse.collect_results_for_activity(
+#             feature_values, activity
+#         )
+#     return activity_feature_values
+#
+#
+# def calculate_features_for_intervals(
+#     data: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
+#     feature_functions: Iterable[Callable],
+# ) -> Dict[str, Iterable[float]]:
+#     if feature_functions is None:
+#         feature_functions = (
+#             mean_absolute_magnitude_change_per_second,
+#             mean_angle_change_per_second
+#         )
+#     for function in feature_functions:
+#         feature_values = calculate_for_dict(data, function)

@@ -133,25 +133,25 @@ def test_angle_change_per_second_returns_expected_array():
     assert_array_equal(result, expected)
 
 
-def test_calculate_for_measurements_returns_expected_values():
+def test_calculate_from_measurements_returns_expected_values():
     measurements = (
         (2, 'Walking', 10000000, 10, 14, 18),
         (2, 'Walking', 50000000, 11, 15, 19),
         (2, 'Walking', 100000000, 12, 16, 20),
         (2, 'Walking', 200000000, 13, 17, 21),
     )
-    result = features.calculate_for_measurements(measurements, lambda x, t: (x, t))
+    result = features.calculate_from_measurements(measurements, lambda t, x: (t, x))
     expected_x = np.array([
         [10, 11, 12, 13],
         [14, 15, 16, 17],
         [18, 19, 20, 21]
     ])
     expected_t = np.array([10000000, 50000000, 100000000, 200000000]) - 10000000
-    assert_array_equal(result[0], expected_x)
-    assert_array_equal(result[1], expected_t)
+    assert_array_equal(result[0], expected_t)
+    assert_array_equal(result[1], expected_x)
 
 
-def test_calculate_for_measurements_returns_expected_sum():
+def test_calculate_from_measurements_returns_expected_sum():
     measurements = (
         (2, 'Walking', 10000000, 10, 14, 18),
         (2, 'Walking', 50000000, 11, 15, 19),
@@ -159,31 +159,11 @@ def test_calculate_for_measurements_returns_expected_sum():
         (2, 'Walking', 200000000, 13, 17, 21),
     )
     expected = np.sum(list(range(10, 22)))  # 186
-    result = features.calculate_for_measurements(measurements, lambda x, t: np.sum(x))
+    result = features.calculate_from_measurements(measurements, lambda t, x: np.sum(x))
     assert result == expected
 
 
-def test_calculate_for_intervals_returns_expected_values():
-    intervals = (
-        (
-            (2, 'Walking', 10000000, 10, 14, 18),
-            (2, 'Walking', 50000000, 11, 15, 19),
-            (2, 'Walking', 100000000, 12, 16, 20),
-            (2, 'Walking', 200000000, 13, 17, 21),
-        ),
-        (
-            (2, 'Walking', 10000000, 0, 0, 0),
-            (2, 'Walking', 50000000, 1, 0, 0),
-            (2, 'Walking', 100000000, 2, 0, 0),
-            (2, 'Walking', 200000000, 3, 0, 0),
-        )
-    )
-    expected = (186, 6)
-    result = features.calculate_for_intervals(intervals, lambda x, t: np.sum(x))
-    assert result == expected
-
-
-def test_calculate_for_dict_returns_expected_dict():
+def test_vectors_for_intervals_returns_expected_values():
     intervals = {
         (2, "Walking"): (
             (
@@ -214,6 +194,87 @@ def test_calculate_for_dict_returns_expected_dict():
             )
         )
     }
-    expected = {(2, "Walking"): (186, 6), (2, "Standing"): (0, 6)}
-    result = features.calculate_for_dict(intervals, lambda x, t: np.sum(x))
+    expected = {
+        (2, "Walking"): ((186, 15.5), (6, 0.5)),
+        (2, "Standing"): ((0, 0), (6, 0.5))
+    }
+    feature_functions = (
+        lambda t, x: np.sum(x),
+        lambda t, x: np.mean(x),
+    )
+    result = features.vectors_for_intervals(intervals, feature_functions)
     assert result == expected
+
+
+# def test_vector_for_measurement_sreturns_expected_values():
+#     measurements = (
+#         (2, 'Walking', 10000000, 10, 14, 18),
+#         (2, 'Walking', 50000000, 11, 15, 19),
+#         (2, 'Walking', 100000000, 12, 16, 20),
+#         (2, 'Walking', 200000000, 13, 17, 21),
+#     )
+#     expected = (186, 15.5)
+#     feature_functions = (
+#         lambda
+#     )
+#     result = features.vector_for_measurements(intervals, lambda t, x: np.sum(x))
+#     assert result == expected
+
+
+# def test_calculate_for_intervals_returns_expected_values():
+#     intervals = (
+#         (
+#             (2, 'Walking', 10000000, 10, 14, 18),
+#             (2, 'Walking', 50000000, 11, 15, 19),
+#             (2, 'Walking', 100000000, 12, 16, 20),
+#             (2, 'Walking', 200000000, 13, 17, 21),
+#         ),
+#         (
+#             (2, 'Walking', 10000000, 0, 0, 0),
+#             (2, 'Walking', 50000000, 1, 0, 0),
+#             (2, 'Walking', 100000000, 2, 0, 0),
+#             (2, 'Walking', 200000000, 3, 0, 0),
+#         )
+#     )
+#     expected = (186, 6)
+#     result = features.calculate_for_intervals(intervals, lambda x, t: np.sum(x))
+#     assert result == expected
+#
+#
+# def test_calculate_for_dict_returns_expected_dict():
+#     intervals = {
+#         (2, "Walking"): (
+#             (
+#                 (2, 'Walking', 10000000, 10, 14, 18),
+#                 (2, 'Walking', 50000000, 11, 15, 19),
+#                 (2, 'Walking', 100000000, 12, 16, 20),
+#                 (2, 'Walking', 200000000, 13, 17, 21),
+#             ),
+#             (
+#                 (2, 'Walking', 10000000, 0, 0, 0),
+#                 (2, 'Walking', 50000000, 1, 0, 0),
+#                 (2, 'Walking', 100000000, 2, 0, 0),
+#                 (2, 'Walking', 200000000, 3, 0, 0),
+#             )
+#         ),
+#         (2, "Standing"): (
+#             (
+#                 (2, 'Standing', 10000000, 0, 0, 0),
+#                 (2, 'Standing', 50000000, 0, 0, 0),
+#                 (2, 'Standing', 100000000, 0, 0, 0),
+#                 (2, 'Standing', 200000000, 0, 0, 0),
+#             ),
+#             (
+#                 (2, 'Standing', 10000000, 0, 0, 0),
+#                 (2, 'Standing', 50000000, 1, 0, 0),
+#                 (2, 'Standing', 100000000, 2, 0, 0),
+#                 (2, 'Standing', 200000000, 3, 0, 0),
+#             )
+#         )
+#     }
+#     expected = {(2, "Walking"): (186, 6), (2, "Standing"): (0, 6)}
+#     result = features.calculate_for_dict(intervals, lambda x, t: np.sum(x))
+#     assert result == expected
+
+
+
