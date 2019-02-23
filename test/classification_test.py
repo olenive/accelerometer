@@ -1,3 +1,6 @@
+import numpy as np
+from numpy.testing import assert_array_equal
+
 import classification
 from classification import GaussianNaiveBayesClassifier
 
@@ -44,3 +47,32 @@ def test_estimate_activity_probabilities():
     }
     result = GaussianNaiveBayesClassifier.estimate_activity_probabilities(given, activities)
     assert result == expected
+
+
+def test_confusion_matrix_from_pairs_returns_expected_array():
+    given = (
+        ("A", "B"),
+        ("A", "A"),
+        ("A", "A"),
+        ("A", "A"),
+        ("B", "B"),
+        ("B", "B"),
+        ("B", "B"),
+        ("B", "B"),
+        ("B", "A"),
+        ("B", "A"),
+        ("C", "C"),
+        ("C", "A"),
+        ("C", "A"),
+        ("B", "C"),
+    )
+    expected = np.array([
+       # A  B  C
+        [3, 1, 0],  # A
+        [2, 4, 1],  # B
+        [2, 0, 1],  # C
+    ])
+    expected_labels = ("A", "B", "C")
+    result, result_labels = classification.confusion_matrix_from_pairs(given)
+    assert_array_equal(result, expected)
+    assert result_labels == expected_labels

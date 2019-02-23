@@ -98,7 +98,7 @@ def extract_vectors_from_dict(interval_features: Dict[Tuple[int, str], Iterable[
         out.append(
             np.array([x[i] for x in all_values])
         )
-    return out
+    return tuple(out)
 
 
 def mean_magnitude_change_per_second(t, x) -> float:

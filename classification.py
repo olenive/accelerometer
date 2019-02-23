@@ -1,11 +1,13 @@
 import numpy as np
-from typing import Iterable, Tuple, Dict
+from itertools import chain
+from typing import Iterable, Tuple, Dict, List
 
 import parse
 import features
 
 
-def train_test_folds(ids: Iterable, shuffled_index_sequence: Iterable, num_folds: int) -> Iterable[Tuple[set, set]]:
+def train_test_folds(ids: List, shuffled_index_sequence: Iterable, num_folds: int) -> Iterable[Tuple[set, set]]:
+    # noinspection PyTypeChecker
     length_test = len(ids) // num_folds
     out = []
     for i in range(num_folds):
@@ -17,6 +19,16 @@ def train_test_folds(ids: Iterable, shuffled_index_sequence: Iterable, num_folds
         train_ids = set([ids[i] for i in train_indices])
         out.append((train_ids, test_ids))
     return tuple(out)
+
+
+def confusion_matrix_from_pairs(pairs: Iterable[Tuple[str, str]]) -> np.ndarray:
+    labels = sorted(set(chain(*pairs)))
+    matrix = np.zeros((len(labels), len(labels)))
+    for pair in pairs:
+        actual = labels.index(pair[0])
+        predicted = labels.index(pair[1])
+        matrix[actual, predicted] += 1
+    return matrix, tuple(labels)
 
 
 class GaussianNaiveBayesClassifier:
@@ -37,7 +49,7 @@ class GaussianNaiveBayesClassifier:
     @staticmethod
     def feature_means_and_variances(
         data: Dict[Tuple[int, str], Iterable[Iterable[float]]],
-        activities: set
+        activities: Iterable[str]
     ) -> Dict[str, Iterable[Tuple[float, float]]]:
         out = dict()
         for activity in activities:
@@ -47,6 +59,7 @@ class GaussianNaiveBayesClassifier:
             for vector in value_vectors:
                 means_and_variances.append((np.mean(vector), np.var(vector)))
             out[activity] = means_and_variances
+        # noinspection PyTypeChecker
         return out
 
     @staticmethod
@@ -61,6 +74,7 @@ class GaussianNaiveBayesClassifier:
             count = 0
             activity_features = parse.collect_dict_values_by_key_content(data, activity)
             for v in activity_features.values():
+                # noinspection PyTypeChecker
                 count += len(v)
             activity_counts[activity] = count
             total_count += count
@@ -77,7 +91,7 @@ class GaussianNaiveBayesClassifier:
         return coefficient * np.exp(exponent)
 
     def product_p_x_given_activity(self, x: Iterable[float], activity: str
-                                   ) -> float:
+                                   ) -> np.ndarray:
         p_x_given_class = []
         class_mean_var = self.activity_feature_means_vars[activity]
         for i, x_i in enumerate(x):
@@ -95,13 +109,26 @@ class GaussianNaiveBayesClassifier:
             p_class_given_x[activity] = self.p_activities[activity] * self.product_p_x_given_activity(x, activity)
         return p_class_given_x
 
-    def predict_activity(self, x: Iterable[float]) -> str:
+    def predict_from_feature_vector(self, x: Iterable[float]) -> str:
         """Predict activity given a feature vector."""
         p_classes = self.p_activity_given_x(x)
         keys = []
         probabilities = []
-        for key, value in p_classes:
+        for key, value in p_classes.items():
             keys.append(key)
             probabilities.append(value)
-        index = np.argmax(probabilities)
+        index: int = np.argmax(probabilities)
         return keys[index]
+
+    def predicted_and_labeled_pairs(
+            self,
+            data: Dict[Tuple[int, str], Iterable[Iterable[float]]],
+    ) -> Iterable[Tuple[str, str]]:
+        """Given new data, return pairs of predicted and known classes."""
+        pairs = []
+        for key, values in data.items():
+            for x in values:
+                predicted_label = self.predict_from_feature_vector(x)
+                known_label = key[1]
+                pairs.append((known_label, predicted_label))
+        return tuple(pairs)
