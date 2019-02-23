@@ -223,3 +223,44 @@ def test_extract_vectors_from_dict_returns_expected_numpy_arrays():
     result = features.extract_vectors_from_dict(given)
     assert_array_equal(result[0], expected[0])
     assert_array_equal(result[1], expected[1])
+
+
+def test_extract_vectors_from_dict_handles_keys_mapping_to_empty_tuples():
+    given = {
+        (2, "Walking"): (
+            (186, 15.5),
+            (6, 0.5)),
+        (2, "Jogging"): (),
+        (2, "Standing"): (
+            (0, 0),
+            (6, 0.5)
+        ),
+        (3, "Standing"): (
+            (0, 0),
+            (6, 0.5)
+        )
+    }
+    expected = (
+        np.array([186, 6, 0, 6, 0, 6]),
+        np.array([15.5, 0.5, 0.0, 0.5, 0, 0.5])
+    )
+    result = features.extract_vectors_from_dict(given)
+    assert_array_equal(result[0], expected[0])
+    assert_array_equal(result[1], expected[1])
+
+
+def test_extract_vectors_from_dict_handles_three_entry_case():
+    given = {
+        (1, 'Downstairs'): (
+            (85, 12),
+            (81, 12),
+            (70, 12),
+        ),
+    }
+    expected = (
+        np.array([85, 81, 70]),
+        np.array([12, 12, 12])
+    )
+    result = features.extract_vectors_from_dict(given)
+    assert_array_equal(result[0], expected[0])
+    assert_array_equal(result[1], expected[1])

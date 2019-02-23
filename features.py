@@ -92,10 +92,8 @@ def extract_vectors_from_dict(interval_features: Dict[Tuple[int, str], Iterable[
     These vectors can then be used for plotting and for fitting distributions to feature values.
     """
     out = []
-    # Determine number of feature vectors.
-    num_features = len(next(iter(interval_features.values())))
-    # Extract feature values and put them into numpy arrays.
     all_values = tuple(chain(*interval_features.values()))
+    num_features = len(all_values[0])
     for i in range(num_features):
         out.append(
             np.array([x[i] for x in all_values])
