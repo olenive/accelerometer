@@ -1,4 +1,5 @@
 import classification
+from classification import GaussianNaiveBayesClassifier
 
 
 def test_train_test_folds_returns_expected_values():
@@ -17,4 +18,29 @@ def test_train_test_folds_returns_expected_values():
         (train_3, test_3),
     )
     result = classification.train_test_folds(ids, sequence, n)
+    assert result == expected
+
+
+def test_normal_pdf_returns_expected_value():
+    expected = 0.10328830949345566
+    result = GaussianNaiveBayesClassifier.normal_pdf(3, 5, 10)
+    assert result == expected
+
+
+def test_estimate_activity_probabilities():
+    given = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (3, "Standing"): (),
+        (4, "Walking"): (),
+        (4, "Standing"): (10,),
+    }
+    activities = {"Standing", "Walking", "Jogging"}
+    expected = {
+        "Standing": 4 / 7,
+        "Walking": 3 / 7,
+        "Jogging": 0.0,
+    }
+    result = GaussianNaiveBayesClassifier.estimate_activity_probabilities(given, activities)
     assert result == expected
