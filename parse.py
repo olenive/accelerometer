@@ -232,6 +232,7 @@ def count_intervals_per_user(
 
 def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, float, float, float]]
                                     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Times (starting at zero) and corresponding accelerations in each directions for a measurement interval."""
     raw_times = np.array([v[2] for v in measurements])
     t = raw_times - np.min(raw_times)
     x = np.array([v[3] for v in measurements])
@@ -249,4 +250,17 @@ def collect_results_for_activity(
     for key, value in results.items():
         if activity in key:
             out.append(value)
+    return tuple(chain(*out))
+
+
+def combine_results_for_activities(
+    results: Dict[Tuple, Iterable[float]],
+    activities_to_merge: Iterable[str]
+) -> Iterable[float]:
+    out = []
+    for key, value in results.items():
+        for activity in activities_to_merge:
+            if activity in key:
+                out.append(value)
+                continue  # Just in case of keys with multiple activities.
     return tuple(chain(*out))

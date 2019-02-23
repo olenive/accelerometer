@@ -1071,3 +1071,19 @@ def test_collect_results_for_activity_returns_expected_values_for_standing():
     expected = (0, 6, 7, 10)
     result = parse.collect_results_for_activity(given, "Standing")
     assert result == expected
+
+
+def test_combine_results_for_activities_combines_jogging_and_walking():
+    given = {
+        (2, "Walking"): (186, 6),
+        (2, "Standing"): (0, 6, 7),
+        (3, "Walking"): (200,),
+        (5, "Jogging"): (300, 400, 500),
+        (3, "Standing"): (),
+        (4, "Walking"): (),
+        (4, "Standing"): (10,),
+        (4, "Jogging"): (30, 40, 50)
+    }
+    expected = (186, 6, 200, 300, 400, 500, 30, 40, 50)
+    result = parse.combine_results_for_activities(given, ("Walking", "Jogging"))
+    assert result == expected
