@@ -206,6 +206,25 @@ def test_vectors_for_intervals_returns_expected_values():
     assert result == expected
 
 
+def test_extract_vectors_from_dict_returns_expected_numpy_arrays():
+    given = {
+        (2, "Walking"): (
+            (186, 15.5),
+            (6, 0.5)),
+        (2, "Standing"): (
+            (0, 0),
+            (6, 0.5)
+        )
+    }
+    expected = (
+        np.array([186, 6, 0, 6]),
+        np.array([15.5, 0.5, 0.0, 0.5])
+    )
+    result = features.extract_vectors_from_dict(given)
+    assert_array_equal(result[0], expected[0])
+    assert_array_equal(result[1], expected[1])
+
+
 # def test_vector_for_measurement_sreturns_expected_values():
 #     measurements = (
 #         (2, 'Walking', 10000000, 10, 14, 18),

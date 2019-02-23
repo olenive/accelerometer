@@ -1,5 +1,6 @@
 import numpy as np
-from typing import Tuple, Iterable, Callable, Any, Dict, Set
+from itertools import chain
+from typing import Tuple, Iterable, Callable, Any, Dict
 
 import parse
 
@@ -83,19 +84,19 @@ def vectors_for_intervals(
 
 def extract_vectors_from_dict(interval_features: Dict[Tuple[int, str], Iterable[Iterable[float]]]
                               ) -> Iterable[np.ndarray]:
-    """Produce a vector of values for each feature from a dictionary of features per measurement interval."""
-    return ()
+    """Produce a vector of values for each feature from a dictionary of features per measurement interval.
 
-# def calculate_for_intervals(data: Iterable[Iterable[Tuple[int, str, int, float, float, float]]],
-#                             feature_function: Callable[[np.ndarray, np.ndarray], Any]
-#                             ) -> Tuple[Any]:
-#     return tuple([calculate_for_measurements(x, feature_function) for x in data])
-#
-#
-# def calculate_for_dict(data: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
-#                        feature_function: Callable[[np.ndarray, np.ndarray], Any]
-#                        ) -> Dict[Tuple[int, str], Tuple[Any]]:
-#     return {k: calculate_for_intervals(v, feature_function) for k, v in data.items()}
+    These vectors can then be used for plotting and for fitting distributions to feature values."""
+    out = []
+    # Determine number of feature vectors.
+    num_features = len(next(iter(interval_features.values())))
+    # Extract feature values and put them into numpy arrays.
+    all_values = tuple(chain(*interval_features.values()))
+    for i in range(num_features):
+        out.append(
+            np.array([x[i] for x in all_values])
+        )
+    return out
 
 
 def mean_magnitude_change_per_second(t, x) -> float:
