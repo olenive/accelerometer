@@ -241,6 +241,18 @@ def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, 
     return t, x, y, z
 
 
+def collect_dict_values_by_key_content(
+        dictionary: Dict[Tuple[int, str], Iterable[Any]],
+        activity: str
+) -> Dict[Tuple[int, str], Iterable[Any]]:
+    out = dict()
+    for key, value in dictionary.items():
+        if activity in key:
+            out[key] = value
+    return out
+
+
+# The functions below may not be needed (check and remove?).
 def collect_results_for_activity(
         results: Dict[Tuple[int, str], Tuple[Any]],
         activity: str
