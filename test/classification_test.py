@@ -109,6 +109,57 @@ def test_data_dict_to_points_and_labels_returns_expected_values_and_labels():
     )
     expected = points, labels
     result = KNNClassifier.data_dict_to_points_and_labels(given)
+    assert result == expected
 
-    # import pdb; pdb.set_trace()
+
+def test_distances_to_points_returns_expected_values():
+    point = (10, 10)
+    points = (
+        (-100.1, 10),
+        (13, 14),
+        (13, 6),
+        (18, 25),
+        (20, 10),
+        (10, 20),
+    )
+    expected = (
+        110.1,
+        5,
+        5,
+        17,
+        10,
+        10,
+    )
+    result = KNNClassifier.distances_to_points(point, points)
+    assert result == expected
+
+
+def test_sort_distances_and_labels_returns_expected():
+    distances = (110.1, 5.1, 5.2, 17, 10.1, 10.2)
+    labels = ('a', 'b', 'c', 'd', 'e', 'f')
+    sorted_distances = (5.1, 5.2, 10.1, 10.2, 17, 110.1)
+    sorted_labels = ('b', 'c', 'e', 'f', 'd', 'a')
+    expected = (sorted_distances, sorted_labels)
+    result = KNNClassifier.sort_distances_and_labels(distances, labels)
+    assert result == expected
+
+
+def test_resolve_ties_handles_non_tied_case():
+    labels = ('a', 'b', 'b', 'c', 'd', 'a', 'b')
+    expected = 'b'
+    result = KNNClassifier.resolve_ties(labels, 5)
+    assert result == expected
+
+
+def test_resolve_ties_handles_once_tie_case():
+    labels = ('a', 'b', 'b', 'c', 'c', 'a', 'b')
+    expected = 'b'
+    result = KNNClassifier.resolve_ties(labels, 5)
+    assert result == expected
+
+
+def test_resolve_ties_handles_all_tied_case():
+    labels = ('a', 'b', 'c', 'd', 'e', 'a', 'b')
+    expected = 'a'
+    result = KNNClassifier.resolve_ties(labels, 5)
     assert result == expected

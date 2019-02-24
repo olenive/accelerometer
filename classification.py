@@ -56,9 +56,8 @@ class GaussianNaiveBayesClassifier:
             value_vectors = features.extract_vectors_from_dict(activity_features)
             means_and_variances = []
             for vector in value_vectors:
-                means_and_variances.append((np.mean(vector), np.var(vector)))
+                means_and_variances.append((float(np.mean(vector)), float(np.var(vector))))
             out[activity] = means_and_variances
-        # noinspection PyTypeChecker
         return out
 
     @staticmethod
@@ -73,7 +72,6 @@ class GaussianNaiveBayesClassifier:
             count = 0
             activity_features = parse.collect_dict_values_by_key_content(data, activity)
             for v in activity_features.values():
-                # noinspection PyTypeChecker
                 count += len(v)
             activity_counts[activity] = count
             total_count += count
@@ -138,7 +136,7 @@ class KNNClassifier:
         self,
         data: Dict[Tuple[int, str], Sequence[Tuple[float]]],
     ) -> None:
-        self.features, self.labels = KNNClassifier.data_dict_to_points_and_labels(data)
+        self.locations, self.labels = KNNClassifier.data_dict_to_points_and_labels(data)
 
     @staticmethod
     def data_dict_to_points_and_labels(data: Dict[Tuple[int, str], Sequence[Tuple[float]]]
@@ -151,3 +149,41 @@ class KNNClassifier:
                 feature_vectors.append(vector)
                 labels.append(key[1])
         return tuple(feature_vectors), tuple(labels)
+
+    @staticmethod
+    def distances_to_points(point: Sequence[float], points: Sequence[Tuple]) -> Sequence[float]:
+        """Calculate L2 distance between a given point and a sequence of other points"""
+        return tuple(float(np.linalg.norm(np.array(x) - np.array(point))) for x in points)
+
+    @staticmethod
+    def sort_distances_and_labels(distances: Sequence[float], labels: Sequence[str]
+                                  ) -> Tuple[Sequence[float], Sequence[str]]:
+        """Sort distances and also sort labels so that they match the re-ordered distances."""
+        sort_index = np.argsort(distances)
+        sorted_distances: Tuple[float] = tuple(distances[i] for i in sort_index)
+        sorted_labels: Tuple[str] = tuple(labels[i] for i in sort_index)
+        return sorted_distances, sorted_labels
+
+    @staticmethod
+    def resolve_ties(sorted_labels: Sequence[str], k: int) -> str:
+        """Pick the most frequent label in top k neighbours or decrement k and try again if there is a tie."""
+        top_k = list(sorted_labels[:k])
+        # Get labels and corresponding counts of items.
+        counts = []
+        labels = []
+        for label in set(top_k):
+            labels.append(label)
+            counts.append(list(top_k).count(label))
+        # Check for ties
+        if len(set(counts)) == len(counts):
+            # No duplicated counts so return label corresponding to highest count.
+            return labels[int(np.argmax(counts))]
+        else:
+            # Decrease k and try again.
+            return KNNClassifier.resolve_ties(sorted_labels, k - 1)
+
+    def predict_from_feature_vector(self, x: Sequence[float], k: int) -> str:
+        """Predict activity given a feature vector."""
+        distances = KNNClassifier.distances_to_points(x, self.locations)
+        _, sorted_labels = KNNClassifier.sort_distances_and_labels(distances, self.labels)
+        return KNNClassifier.resolve_ties(sorted_labels, k)
