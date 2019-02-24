@@ -111,3 +111,15 @@ def mean_absolute_magnitude_change_per_second(t, x) -> float:
 
 def mean_angle_change_per_second(t, x) -> float:
     return float(np.mean(angle_change_per_second(t, x)))
+
+
+def mean_x_acceleration(t, x) -> float:
+    return float(np.mean(x[0]))
+
+
+def mean_y_acceleration(t, x) -> float:
+    return float(np.mean(x[1]))
+
+
+def mean_z_acceleration(t, x) -> float:
+    return float(np.mean(x[2]))
