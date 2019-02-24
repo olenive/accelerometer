@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import Iterable
+from typing import Sequence
 
 import parse
 import features
@@ -47,7 +47,7 @@ def feature_histograms_for_activities(interval_features, activities, bins):
         activity_intervals = parse.collect_dict_values_by_key_content(interval_features, activity)
         feature_vectors = features.extract_vectors_from_dict(activity_intervals)
         for i, vector in enumerate(feature_vectors):
-            plt.figure(figsize=(15,5))
+            plt.figure(figsize=(15, 5))
             plt.hist(
                 vector,
                 bins=bins,
@@ -74,7 +74,7 @@ def feature_scatter_for_activities(interval_features, activities, colours):
     plt.show()
 
 
-def confusion_matrix(array: np.ndarray, labels: Iterable[str]) -> None:
+def confusion_matrix(array: np.ndarray, labels: Sequence[str]) -> None:
     sns.heatmap(
         array,
         cmap="jet",

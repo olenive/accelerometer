@@ -1,11 +1,10 @@
 import numpy as np
-from itertools import chain
-from typing import Tuple, Iterable, Dict, Set, Any, Optional
+from typing import Tuple, Sequence, Dict, Set, Any, Optional
 
 
 def file_to_string(file_path: str) -> str:
-    with open(file_path, 'r') as myfile:
-        return myfile.read()
+    with open(file_path, 'r') as my_file:
+        return my_file.read()
 
 
 def raw_data_string_to_timepoint_strings(data: str) -> Tuple[str]:
@@ -24,7 +23,7 @@ def raw_data_string_to_timepoint_strings(data: str) -> Tuple[str]:
     return tuple(out)
 
 
-def timepoint_strings_to_timepoint_tuples(data: Iterable[str]) -> Iterable[Tuple[int, str, int, float, float, float]]:
+def timepoint_strings_to_timepoint_tuples(data: Sequence[str]) -> Sequence[Tuple[int, str, int, float, float, float]]:
     def _tuple_of_types(row: str) -> Tuple[int, str, int, float, float, float]:
         x = tuple(v.lstrip().rstrip() for v in row.split(','))  # Remove trailing and leading whitespace.
         return int(x[0]), x[1], int(x[2]), float(x[3]), float(x[4]), float(x[5])
@@ -32,16 +31,16 @@ def timepoint_strings_to_timepoint_tuples(data: Iterable[str]) -> Iterable[Tuple
     return tuple(_tuple_of_types(i) for i in data)
 
 
-def extract_user_set(data: Iterable[Tuple[int, str, int, float, float, float]]) -> Set[int]:
+def extract_user_set(data: Sequence[Tuple[int, str, int, float, float, float]]) -> Set[int]:
     return set(x[0] for x in data)
 
 
-def extract_activity_set(data: Iterable[Tuple[int, str, int, float, float, float]]) -> Set[str]:
+def extract_activity_set(data: Sequence[Tuple[int, str, int, float, float, float]]) -> Set[str]:
     return set(x[1] for x in data)
 
 
 def select_matching_measurements(
-        data: Iterable[Tuple[int, str, int, float, float, float]],
+        data: Sequence[Tuple[int, str, int, float, float, float]],
         column: int,
         value: Any,
 ) -> Tuple[Tuple[int, str, int, float, float, float]]:
@@ -53,7 +52,7 @@ def select_matching_measurements(
     return tuple(out)
 
 
-def measurements_by_user(data: Iterable[Tuple[int, str, int, float, float, float]]
+def measurements_by_user(data: Sequence[Tuple[int, str, int, float, float, float]]
                          ) -> Dict[int, Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create a dictionary of user ids to timepoint data."""
     users = extract_user_set(data)
@@ -63,7 +62,7 @@ def measurements_by_user(data: Iterable[Tuple[int, str, int, float, float, float
     return out
 
 
-def measurements_by_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
+def measurements_by_activity(data: Sequence[Tuple[int, str, int, float, float, float]]
                              ) -> Dict[str, Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create a dictionary of activities to timepoint data."""
     activities = extract_activity_set(data)
@@ -73,7 +72,7 @@ def measurements_by_activity(data: Iterable[Tuple[int, str, int, float, float, f
     return out
 
 
-def measurements_by_user_and_activity(data: Iterable[Tuple[int, str, int, float, float, float]]
+def measurements_by_user_and_activity(data: Sequence[Tuple[int, str, int, float, float, float]]
                                       ) -> Dict[Tuple[int, str], Tuple[Tuple[int, str, int, float, float, float]]]:
     """Create dictionary mapping user id and activity pairs to relevant timepoint data."""
     users = extract_user_set(data)
@@ -94,7 +93,7 @@ def measurement_is_valid(timepoint: Tuple[int, str, int, float, float, float]) -
         return True
 
 
-def next_valid_timepoint(data: Iterable[Tuple[int, str, int, float, float, float]],
+def next_valid_timepoint(data: Sequence[Tuple[int, str, int, float, float, float]],
                          starting_index: int) -> Optional[Tuple[int, str, int, float, float, float]]:
     """Return the next valid timepoint after the start index."""
     for timepoint in data[starting_index + 1:]:
@@ -103,12 +102,12 @@ def next_valid_timepoint(data: Iterable[Tuple[int, str, int, float, float, float
 
 
 def split_into_intervals(
-    data: Iterable[Tuple[int, str, int, float, float, float]],
+    data: Sequence[Tuple[int, str, int, float, float, float]],
     interval_duration_in_nanoseconds: int,
     maximum_gap_in_nanoseconds: int,
     check_id=True,
     check_activity=True,
-) -> Iterable[Tuple[Tuple[int, str, int, float, float, float]]]:
+) -> Sequence[Tuple[Tuple[int, str, int, float, float, float]]]:
     """Extract intervals of fixed duration from a single series of measurements.
 
     Ignore measurements that have all zeros for time and acceleration values.
@@ -121,7 +120,6 @@ def split_into_intervals(
         activities = extract_activity_set(data)
         if len(set(activities)) > 1:
             raise ValueError("Expecting zero or one unique activities but found: {}".format(set(activities)))
-    # noinspection PyTypeChecker
     if len(data) < 2:
         return ()
     time_in_interval = 0
@@ -179,12 +177,12 @@ def split_into_intervals(
 
 
 def intervals_by_user_and_activity(
-    data: Iterable[Tuple[int, str, int, float, float, float]],
+    data: Sequence[Tuple[int, str, int, float, float, float]],
     interval_duration_in_nanoseconds: int,
     maximum_gap_in_nanoseconds: int,
     check_id=True,
     check_activity=True,
-) -> Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]:
+) -> Dict[Tuple[int, str], Sequence[Tuple[Tuple[int, str, int, float, float, float]]]]:
     """Create a dictionary mapping user id and activity to measurement intervals of specified duration."""
     out = dict()
     for key, series in measurements_by_user_and_activity(data).items():
@@ -193,44 +191,39 @@ def intervals_by_user_and_activity(
     return out
 
 
-def count_intervals(intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
+def count_intervals(intervals: Dict[Tuple[int, str], Sequence[Tuple[Tuple[int, str, int, float, float, float]]]]
                     ) -> Dict[Tuple[int, str], int]:
     out = dict()
     for key, value in intervals.items():
-        # noinspection PyTypeChecker
         out[key] = len(value)
     return out
 
 
 def count_intervals_per_activity(
-        intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
+        intervals: Dict[Tuple[int, str], Sequence[Tuple[Tuple[int, str, int, float, float, float]]]]
 ) -> Dict[Tuple[int, str], int]:
-    # noinspection PyTypeChecker
     activities = extract_activity_set(intervals)
     out = {x: 0 for x in activities}
     for key, value in intervals.items():
         for activity in activities:
             if activity in key:
-                # noinspection PyTypeChecker
                 out[activity] += len(value)
     return out
 
 
 def count_intervals_per_user(
-        intervals: Dict[Tuple[int, str], Iterable[Tuple[Tuple[int, str, int, float, float, float]]]]
+        intervals: Dict[Tuple[int, str], Sequence[Tuple[Tuple[int, str, int, float, float, float]]]]
 ) -> Dict[Tuple[int, str], int]:
-    # noinspection PyTypeChecker
     users = extract_user_set(intervals)
     out = {x: 0 for x in users}
     for key, value in intervals.items():
         for user in users:
             if user in key:
-                # noinspection PyTypeChecker
                 out[user] += len(value)
     return out
 
 
-def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, float, float, float]]
+def relative_time_and_accelerations(measurements: Sequence[Tuple[int, str, int, float, float, float]]
                                     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Times (starting at zero) and corresponding accelerations in each directions for a measurement interval."""
     raw_times = np.array([v[2] for v in measurements])
@@ -242,9 +235,9 @@ def relative_time_and_accelerations(measurements: Iterable[Tuple[int, str, int, 
 
 
 def collect_dict_values_by_key_content(
-        dictionary: Dict[Tuple[int, str], Iterable[Any]],
+        dictionary: Dict[Tuple[int, str], Sequence[Any]],
         content: Any
-) -> Dict[Tuple[int, str], Iterable[Any]]:
+) -> Dict[Tuple[int, str], Sequence[Any]]:
     out = dict()
     for key, value in dictionary.items():
         if content in key:
@@ -253,9 +246,9 @@ def collect_dict_values_by_key_content(
 
 
 def collect_dict_values_by_listed_key_contents(
-        dictionary: Dict[Tuple[int, str], Iterable[Any]],
-        content: Iterable[int]
-) -> Dict[Tuple[int, str], Iterable[Any]]:
+        dictionary: Dict[Tuple[int, str], Sequence[Any]],
+        content: Sequence[Any]
+) -> Dict[Tuple[int, str], Sequence[Any]]:
     out = dict()
     for key, value in dictionary.items():
         for item in content:
@@ -263,29 +256,3 @@ def collect_dict_values_by_listed_key_contents(
                 out[key] = value
                 continue
     return out
-
-
-# The functions below may not be needed (check and remove?).
-def collect_results_for_activity(
-        results: Dict[Tuple[int, str], Tuple[Any]],
-        activity: str
-) -> Tuple[Any]:
-    """Gather values for all keys that contain the specified activity."""
-    out = []
-    for key, value in results.items():
-        if activity in key:
-            out.append(value)
-    return tuple(chain(*out))
-
-
-def combine_results_for_activities(
-    results: Dict[Tuple, Iterable[float]],
-    activities_to_merge: Iterable[str]
-) -> Iterable[float]:
-    out = []
-    for key, value in results.items():
-        for activity in activities_to_merge:
-            if activity in key:
-                out.append(value)
-                continue  # Just in case of keys with multiple activities.
-    return tuple(chain(*out))

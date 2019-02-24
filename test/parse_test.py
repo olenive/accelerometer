@@ -1110,7 +1110,7 @@ def test_collect_dict_values_by_listed_key_contents_returns_expected_dict_for_us
         (4, "Walking"): (),
         (4, "Standing"): (10,),
     }
-    ids = {2, 3}
+    ids = [2, 3]
     expected = {
         (2, "Walking"): (186, 6),
         (2, "Standing"): (0, 6, 7),
@@ -1118,49 +1118,4 @@ def test_collect_dict_values_by_listed_key_contents_returns_expected_dict_for_us
         (3, "Standing"): (),
     }
     result = parse.collect_dict_values_by_listed_key_contents(given, ids)
-    assert result == expected
-
-
-# These may not be needed
-def test_collect_results_for_activity_returns_expected_values_for_walking():
-    given = {
-        (2, "Walking"): (186, 6),
-        (2, "Standing"): (0, 6, 7),
-        (3, "Walking"): (200,),
-        (3, "Standing"): (),
-        (4, "Walking"): (),
-        (4, "Standing"): (10,),
-    }
-    expected = (186, 6, 200)
-    result = parse.collect_results_for_activity(given, "Walking")
-    assert result == expected
-
-
-def test_collect_results_for_activity_returns_expected_values_for_standing():
-    given = {
-        (2, "Walking"): (186, 6),
-        (2, "Standing"): (0, 6, 7),
-        (3, "Walking"): (200,),
-        (3, "Standing"): (),
-        (4, "Walking"): (),
-        (4, "Standing"): (10,),
-    }
-    expected = (0, 6, 7, 10)
-    result = parse.collect_results_for_activity(given, "Standing")
-    assert result == expected
-
-
-def test_combine_results_for_activities_combines_jogging_and_walking():
-    given = {
-        (2, "Walking"): (186, 6),
-        (2, "Standing"): (0, 6, 7),
-        (3, "Walking"): (200,),
-        (5, "Jogging"): (300, 400, 500),
-        (3, "Standing"): (),
-        (4, "Walking"): (),
-        (4, "Standing"): (10,),
-        (4, "Jogging"): (30, 40, 50)
-    }
-    expected = (186, 6, 200, 300, 400, 500, 30, 40, 50)
-    result = parse.combine_results_for_activities(given, ("Walking", "Jogging"))
     assert result == expected

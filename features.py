@@ -1,6 +1,6 @@
 import numpy as np
 from itertools import chain
-from typing import Tuple, Iterable, Callable, Any, Dict
+from typing import Tuple, Sequence, Callable, Any, Dict
 
 import parse
 
@@ -27,7 +27,7 @@ def difference_per_second(times_in_nanoseconds: np.ndarray, x: np.ndarray) -> np
     return difference(x) / (difference(times_in_nanoseconds) / nanoseconds_in_one_second)
 
 
-def magnitude_change_per_second(times_in_nanoseconds: np.ndarray, x: np.ndarray)  -> np.ndarray:
+def magnitude_change_per_second(times_in_nanoseconds: np.ndarray, x: np.ndarray) -> np.ndarray:
     """Calculate changes in magnitude of acceleration between measurements and convert to change per second."""
     magnitudes = np.linalg.norm(x, axis=0)
     return difference_per_second(times_in_nanoseconds, magnitudes)
@@ -52,12 +52,12 @@ def angle_difference(x: np.ndarray) -> np.ndarray:
     return np.array(out)
 
 
-def angle_change_per_second(times_in_nanoseconds: np.ndarray, x: np.ndarray)  -> np.ndarray:
+def angle_change_per_second(times_in_nanoseconds: np.ndarray, x: np.ndarray) -> np.ndarray:
     angles = angle_difference(x)
     return angles / (difference(times_in_nanoseconds) / nanoseconds_in_one_second)
 
 
-def calculate_from_measurements(measurements: Iterable[Tuple[int, str, int, float, float, float]],
+def calculate_from_measurements(measurements: Sequence[Tuple[int, str, int, float, float, float]],
                                 feature_function: Callable[[np.ndarray, np.ndarray], Any],
                                 ) -> Any:
     """Apply feature calculating function to a measurement interval."""
@@ -67,9 +67,9 @@ def calculate_from_measurements(measurements: Iterable[Tuple[int, str, int, floa
 
 
 def vectors_for_intervals(
-    intervals: Dict[Tuple[int, str], Iterable[Iterable[Tuple[int, str, int, float, float, float]]]],
-    feature_functions: Iterable[Callable[[np.ndarray, np.ndarray], Any]],
-) -> Dict[Tuple[int, str], Iterable[Iterable[float]]]:
+    intervals: Dict[Tuple[int, str], Sequence[Sequence[Tuple[int, str, int, float, float, float]]]],
+    feature_functions: Sequence[Callable[[np.ndarray, np.ndarray], Any]],
+) -> Dict[Tuple[int, str], Sequence[Sequence[float]]]:
     """Apply feature calculating functions to all measurement intervals in dictionary.
 
     The resulting dictionary of feature vectors can be passed to methods that evaluate classifier performance.
@@ -85,8 +85,8 @@ def vectors_for_intervals(
     return out
 
 
-def extract_vectors_from_dict(interval_features: Dict[Tuple[int, str], Iterable[Iterable[float]]]
-                              ) -> Iterable[np.ndarray]:
+def extract_vectors_from_dict(interval_features: Dict[Tuple[int, str], Sequence[Sequence[float]]]
+                              ) -> Sequence[np.ndarray]:
     """Produce a vector of values for each feature from a dictionary of features per measurement interval.
 
     These vectors can then be used for plotting and for fitting distributions to feature values.
@@ -102,12 +102,12 @@ def extract_vectors_from_dict(interval_features: Dict[Tuple[int, str], Iterable[
 
 
 def mean_magnitude_change_per_second(t, x) -> float:
-    return np.mean(magnitude_change_per_second(t, x))
+    return float(np.mean(magnitude_change_per_second(t, x)))
 
 
 def mean_absolute_magnitude_change_per_second(t, x) -> float:
-    return np.mean(np.absolute(magnitude_change_per_second(t, x)))
+    return float(np.mean(np.absolute(magnitude_change_per_second(t, x))))
 
 
 def mean_angle_change_per_second(t, x) -> float:
-    return np.mean(angle_change_per_second(t, x))
+    return float(np.mean(angle_change_per_second(t, x)))

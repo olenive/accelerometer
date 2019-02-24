@@ -1,13 +1,12 @@
 import numpy as np
 from itertools import chain
-from typing import Iterable, Tuple, Dict, List
+from typing import Sequence, Tuple, Dict, List, Set
 
 import parse
 import features
 
 
-def train_test_folds(ids: List, shuffled_index_sequence: Iterable, num_folds: int) -> Iterable[Tuple[set, set]]:
-    # noinspection PyTypeChecker
+def train_test_folds(ids: List, shuffled_index_sequence: Sequence, num_folds: int) -> Sequence[Tuple[set, set]]:
     length_test = len(ids) // num_folds
     out = []
     for i in range(num_folds):
@@ -21,7 +20,7 @@ def train_test_folds(ids: List, shuffled_index_sequence: Iterable, num_folds: in
     return tuple(out)
 
 
-def confusion_matrix_from_pairs(pairs: Iterable[Tuple[str, str]]) -> np.ndarray:
+def confusion_matrix_from_pairs(pairs: Sequence[Tuple[str, str]]) -> Tuple[np.ndarray, Sequence[str]]:
     labels = sorted(set(chain(*pairs)))
     matrix = np.zeros((len(labels), len(labels)))
     for pair in pairs:
@@ -35,7 +34,7 @@ class GaussianNaiveBayesClassifier:
     """Naive Bayes classifier that assumes an underlying Gaussian distribution for each feature."""
     def __init__(
         self,
-        data: Dict[Tuple[int, str], Iterable[Iterable[float]]],
+        data: Dict[Tuple[int, str], Sequence[Sequence[float]]],
         activities: set
     ) -> None:
         self.activities = activities
@@ -48,9 +47,9 @@ class GaussianNaiveBayesClassifier:
 
     @staticmethod
     def feature_means_and_variances(
-        data: Dict[Tuple[int, str], Iterable[Iterable[float]]],
-        activities: Iterable[str]
-    ) -> Dict[str, Iterable[Tuple[float, float]]]:
+        data: Dict[Tuple[int, str], Sequence[Sequence[float]]],
+        activities: Set[str]
+    ) -> Dict[str, Sequence[Tuple[float, float]]]:
         out = dict()
         for activity in activities:
             activity_features = parse.collect_dict_values_by_key_content(data, activity)
@@ -64,7 +63,7 @@ class GaussianNaiveBayesClassifier:
 
     @staticmethod
     def estimate_activity_probabilities(
-        data: Dict[Tuple[int, str], Iterable[Iterable[float]]],
+        data: Dict[Tuple[int, str], Sequence[Sequence[float]]],
         activities: set
     ) -> Dict[str, float]:
         activity_counts = dict()
@@ -90,7 +89,7 @@ class GaussianNaiveBayesClassifier:
         coefficient = 1 / np.sqrt(2 * np.pi * variance)
         return coefficient * np.exp(exponent)
 
-    def product_p_x_given_activity(self, x: Iterable[float], activity: str
+    def product_p_x_given_activity(self, x: Sequence[float], activity: str
                                    ) -> np.ndarray:
         p_x_given_class = []
         class_mean_var = self.activity_feature_means_vars[activity]
@@ -102,14 +101,14 @@ class GaussianNaiveBayesClassifier:
             )
         return np.prod(p_x_given_class)
 
-    def p_activity_given_x(self, x: Iterable[float]):
+    def p_activity_given_x(self, x: Sequence[float]):
         """NB estimate of probability of activities given a feature vector."""
         p_class_given_x = dict()
         for activity in self.activities:
             p_class_given_x[activity] = self.p_activities[activity] * self.product_p_x_given_activity(x, activity)
         return p_class_given_x
 
-    def predict_from_feature_vector(self, x: Iterable[float]) -> str:
+    def predict_from_feature_vector(self, x: Sequence[float]) -> str:
         """Predict activity given a feature vector."""
         p_classes = self.p_activity_given_x(x)
         keys = []
@@ -122,8 +121,8 @@ class GaussianNaiveBayesClassifier:
 
     def predicted_and_labeled_pairs(
             self,
-            data: Dict[Tuple[int, str], Iterable[Iterable[float]]],
-    ) -> Iterable[Tuple[str, str]]:
+            data: Dict[Tuple[int, str], Sequence[Sequence[float]]],
+    ) -> Sequence[Tuple[str, str]]:
         """Given new data, return pairs of predicted and known classes."""
         pairs = []
         for key, values in data.items():
@@ -132,3 +131,17 @@ class GaussianNaiveBayesClassifier:
                 known_label = key[1]
                 pairs.append((known_label, predicted_label))
         return tuple(pairs)
+
+
+class kNNClassifier:
+    def __init__(
+        self,
+        data: Dict[Tuple[int, str], Sequence[Sequence[float]]],
+    ) -> None:
+        self.features, self.labels = kNNClassifier.data_dict_to_points_and_labels(data)
+
+    @staticmethod
+    def data_dict_to_points_and_labels(data: Dict[Tuple[int, str], Sequence[Sequence[float]]]
+                                       ) -> Tuple[Sequence[float], Sequence[str]]:
+        """Take a dictionary mapping labels to feature vectors and return matching sequences of features and labels."""
+        return (1,), ("asdf",)
