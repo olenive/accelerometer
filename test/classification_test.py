@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 import classification
-from classification import GaussianNaiveBayesClassifier
+from classification import GaussianNaiveBayesClassifier, KNNClassifier
 
 
 def test_train_test_folds_returns_expected_values():
@@ -76,3 +76,39 @@ def test_confusion_matrix_from_pairs_returns_expected_array():
     result, result_labels = classification.confusion_matrix_from_pairs(given)
     assert_array_equal(result, expected)
     assert result_labels == expected_labels
+
+
+def test_data_dict_to_points_and_labels_returns_expected_values_and_labels():
+    given = {
+        (1, "Jogging"): (
+            (70, 12),
+        ),
+        (1, "Downstairs"): (
+            (85, 12),
+            (81, 12),
+            (70, 12),
+        ),
+        (2, "Jogging"): (),
+        (3, "Jogging"): (
+            (150, 30),
+        )
+    }
+    points = (
+        (70, 12),
+        (85, 12),
+        (81, 12),
+        (70, 12),
+        (150, 30),
+    )
+    labels = (
+        "Jogging",
+        "Downstairs",
+        "Downstairs",
+        "Downstairs",
+        "Jogging",
+    )
+    expected = points, labels
+    result = KNNClassifier.data_dict_to_points_and_labels(given)
+
+    # import pdb; pdb.set_trace()
+    assert result == expected

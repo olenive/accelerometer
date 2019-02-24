@@ -133,15 +133,21 @@ class GaussianNaiveBayesClassifier:
         return tuple(pairs)
 
 
-class kNNClassifier:
+class KNNClassifier:
     def __init__(
         self,
-        data: Dict[Tuple[int, str], Sequence[Sequence[float]]],
+        data: Dict[Tuple[int, str], Sequence[Tuple[float]]],
     ) -> None:
-        self.features, self.labels = kNNClassifier.data_dict_to_points_and_labels(data)
+        self.features, self.labels = KNNClassifier.data_dict_to_points_and_labels(data)
 
     @staticmethod
-    def data_dict_to_points_and_labels(data: Dict[Tuple[int, str], Sequence[Sequence[float]]]
-                                       ) -> Tuple[Sequence[float], Sequence[str]]:
+    def data_dict_to_points_and_labels(data: Dict[Tuple[int, str], Sequence[Tuple[float]]]
+                                       ) -> Tuple[Tuple[Tuple[float]], Tuple[str]]:
         """Take a dictionary mapping labels to feature vectors and return matching sequences of features and labels."""
-        return (1,), ("asdf",)
+        feature_vectors = []
+        labels = []
+        for key, sequence in data.items():
+            for vector in sequence:
+                feature_vectors.append(vector)
+                labels.append(key[1])
+        return tuple(feature_vectors), tuple(labels)
