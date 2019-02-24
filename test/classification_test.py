@@ -78,6 +78,18 @@ def test_confusion_matrix_from_pairs_returns_expected_array():
     assert result_labels == expected_labels
 
 
+def test_accuracy_from_confusion_matrix_returns_expected_values():
+    matrix = np.array([
+       # A  B  C
+        [3, 1, 0],  # A
+        [2, 4, 1],  # B
+        [2, 0, 1],  # C
+    ])
+    expected = (3 + 4 + 1) / (3 + 1 + 0 + 2 + 4 + 1 + 2 + 0 + 1)
+    result = classification.accuracy_from_counfusion_matrix(matrix)
+    assert result == expected
+
+
 def test_data_dict_to_points_and_labels_returns_expected_values_and_labels():
     given = {
         (1, "Jogging"): (

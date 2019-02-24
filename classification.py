@@ -30,6 +30,11 @@ def confusion_matrix_from_pairs(pairs: Sequence[Tuple[str, str]]) -> Tuple[np.nd
     return matrix, tuple(labels)
 
 
+def accuracy_from_confusion_matrix(matrix: np.ndarray) -> float:
+    diagonal = np.identity(matrix.shape[0]) * matrix
+    return float(np.sum(diagonal) / np.sum(matrix))
+
+
 class GaussianNaiveBayesClassifier:
     """Naive Bayes classifier that assumes an underlying Gaussian distribution for each feature."""
     def __init__(
@@ -187,3 +192,17 @@ class KNNClassifier:
         distances = KNNClassifier.distances_to_points(x, self.locations)
         _, sorted_labels = KNNClassifier.sort_distances_and_labels(distances, self.labels)
         return KNNClassifier.resolve_ties(sorted_labels, k)
+
+    def predicted_and_labeled_pairs(
+            self,
+            data: Dict[Tuple[int, str], Sequence[Sequence[float]]],
+            k: int
+    ) -> Sequence[Tuple[str, str]]:
+        """Given new data, return pairs of predicted and known classes."""
+        pairs = []
+        for key, values in data.items():
+            for x in values:
+                predicted_label = self.predict_from_feature_vector(x, k)
+                known_label = key[1]
+                pairs.append((known_label, predicted_label))
+        return tuple(pairs)
