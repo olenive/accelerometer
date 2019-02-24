@@ -1,8 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+from typing import Iterable
 
 import parse
 import features
+
 
 nanoseconds_in_one_second = 1000000000
 nanoseconds_in_10_seconds = 10000000000
@@ -69,3 +72,15 @@ def feature_scatter_for_activities(interval_features, activities, colours):
     plt.ylabel("mean angle change per second")
     ax.legend()
     plt.show()
+
+
+def confusion_matrix(array: np.ndarray, labels: Iterable[str]) -> None:
+    sns.heatmap(
+        array,
+        cmap="jet",
+        square=True,
+        annot=True,
+        xticklabels=labels,
+        yticklabels=labels,
+        fmt='g'
+    )
