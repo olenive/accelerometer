@@ -57,15 +57,15 @@ def feature_histograms_for_activities(interval_features, activities, bins):
 
 
 def feature_scatter_for_activities(interval_features, activities, colours):
-    fig, ax = plt.subplots(figsize=(10,10))
+    fig, ax = plt.subplots(figsize=(10, 10))
     for i, activity in enumerate(activities):
         activity_intervals = parse.collect_dict_values_by_key_content(interval_features, activity)
         x = features.extract_vectors_from_dict(activity_intervals)
         ax.scatter(x[0], x[1], c=colours[i], alpha=0.4, marker='.', label=activity)
     ax.set_xlim((0, 200))
     ax.set_ylim((0, 40))
-    x0,x1 = ax.get_xlim()
-    y0,y1 = ax.get_ylim()
+    x0, x1 = ax.get_xlim()
+    y0, y1 = ax.get_ylim()
     ax.set_aspect(abs(x1 - x0) / abs(y1 - y0))
     ax.set_title("")
     plt.xlabel("mean absolute magnitude change per second")
