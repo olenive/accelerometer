@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple, Sequence, Dict, Set, Any, Optional
+from typing import Tuple, Sequence, Dict, Set, Any, Optional, Iterable
 
 
 def file_to_string(file_path: str) -> str:
@@ -31,11 +31,11 @@ def timepoint_strings_to_timepoint_tuples(data: Sequence[str]) -> Sequence[Tuple
     return tuple(_tuple_of_types(i) for i in data)
 
 
-def extract_user_set(data: Sequence[Tuple[int, str, int, float, float, float]]) -> Set[int]:
+def extract_user_set(data: Iterable[Tuple[int, str, int, float, float, float]]) -> Set[int]:
     return set(x[0] for x in data)
 
 
-def extract_activity_set(data: Sequence[Tuple[int, str, int, float, float, float]]) -> Set[str]:
+def extract_activity_set(data: Iterable[Tuple[int, str, int, float, float, float]]) -> Set[str]:
     return set(x[1] for x in data)
 
 
@@ -202,7 +202,7 @@ def count_intervals(intervals: Dict[Tuple[int, str], Sequence[Tuple[Tuple[int, s
 def count_intervals_per_activity(
         intervals: Dict[Tuple[int, str], Sequence[Tuple[Tuple[int, str, int, float, float, float]]]]
 ) -> Dict[Tuple[int, str], int]:
-    activities = extract_activity_set(intervals)
+    activities = set(x[1] for x in intervals.keys())
     out = {x: 0 for x in activities}
     for key, value in intervals.items():
         for activity in activities:
@@ -214,7 +214,7 @@ def count_intervals_per_activity(
 def count_intervals_per_user(
         intervals: Dict[Tuple[int, str], Sequence[Tuple[Tuple[int, str, int, float, float, float]]]]
 ) -> Dict[Tuple[int, str], int]:
-    users = extract_user_set(intervals)
+    users = set(x[0] for x in intervals.keys())
     out = {x: 0 for x in users}
     for key, value in intervals.items():
         for user in users:
